@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import './Topbar.css';
 
-const Topbar = () => {
+const Topbar = ({ onMenuToggle }) => {
   const [notificationCount] = useState(3);
 
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <button className="menu-toggle" aria-label="Toggle menu">
+        <button className="menu-toggle" aria-label="Toggle menu" onClick={onMenuToggle}>
           <span className="hamburger-icon"><i className="fas fa-bars"></i></span>
         </button>
         <h1 className="topbar-title">Smart Campus Infrastructure</h1>

@@ -296,9 +296,43 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .space-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .suggestions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .space-page {
+    padding: var(--spacing-md);
+  }
+  
+  .space-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
   .heatmap-grid {
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 6px;
+  }
+  
+  .heatmap-cell {
+    font-size: 9px;
+  }
+  
+  .cell-label {
+    font-size: 8px;
   }
   
   .suggestions-grid {
@@ -307,6 +341,7 @@
   
   .legend {
     font-size: 10px;
+    gap: var(--spacing-sm);
   }
   
   .filter-buttons {
@@ -317,15 +352,37 @@
     flex: 1;
     font-size: var(--text-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
+    min-width: 70px;
   }
 }
 
 @media (max-width: 480px) {
+  .page-title {
+    font-size: var(--text-xl);
+  }
+  
+  .page-subtitle {
+    font-size: var(--text-sm);
+  }
+  
   .space-grid {
     grid-template-columns: 1fr;
   }
   
   .heatmap-grid {
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+    gap: 4px;
+  }
+  
+  .heatmap-cell {
+    font-size: 8px;
+  }
+  
+  .section-card {
+    padding: var(--spacing-md);
+  }
+  
+  .suggestion-card {
+    padding: var(--spacing-md);
   }
 }

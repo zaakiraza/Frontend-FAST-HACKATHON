@@ -176,18 +176,41 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .maintenance-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .maintenance-page {
+    padding: var(--spacing-md);
+  }
+  
   .page-header {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-md);
   }
   
   .btn-create {
     width: 100%;
+    justify-content: center;
   }
   
   .maintenance-grid {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
   }
   
   .form-row {
@@ -201,11 +224,33 @@
   .filter-btn {
     flex: 1;
     font-size: var(--text-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .stats-row {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
+  .page-title {
+    font-size: var(--text-xl);
+  }
+  
+  .page-subtitle {
+    font-size: var(--text-sm);
+  }
+  
+  .section-card {
+    padding: var(--spacing-md);
+  }
+  
   .ticket-id {
     font-size: var(--text-xs);
+  }
+  
+  .btn-create {
+    font-size: var(--text-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 }

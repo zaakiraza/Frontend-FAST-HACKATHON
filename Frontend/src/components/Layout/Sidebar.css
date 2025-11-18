@@ -17,12 +17,31 @@
 .sidebar-header {
   padding: var(--spacing-lg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+}
+
+.sidebar-close {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-inverse);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.sidebar-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .logo-icon {
@@ -160,9 +179,16 @@
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    z-index: 1001;
   }
   
   .sidebar.open {
     transform: translateX(0);
+  }
+  
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

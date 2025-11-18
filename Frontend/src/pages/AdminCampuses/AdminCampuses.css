@@ -337,6 +337,12 @@
   flex: 1;
 }
 
+@media (max-width: 1024px) {
+  .campuses-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .admin-campuses-page {
     padding: 1rem;
@@ -344,17 +350,47 @@
 
   .page-header {
     flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
 
   .campuses-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .campus-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .campus-card {
+    padding: 1rem;
+  }
+  
+  .campus-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat-item {
+    padding: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
   }
 }

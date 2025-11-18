@@ -112,12 +112,35 @@
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+  .info-card {
+    padding: var(--spacing-md);
+  }
+  
+  .info-card-icon {
+    font-size: var(--text-xl);
+  }
+  
+  .info-card-value {
+    font-size: var(--text-2xl);
+  }
+  
+  .info-card-title {
+    font-size: var(--text-xs);
+  }
+}
+
 @media (max-width: 480px) {
   .info-card {
     padding: var(--spacing-md);
   }
   
   .info-card-value {
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);
+  }
+  
+  .info-card-subtitle,
+  .info-card-footer {
+    font-size: var(--text-xs);
   }
 }

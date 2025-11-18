@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const menuItems = [
     { path: '/', label: 'Dashboard', icon: 'fas fa-chart-line', enabled: true },
     { path: '/energy', label: 'Energy Monitoring', icon: 'fas fa-bolt', enabled: true },
@@ -16,13 +16,23 @@ const Sidebar = () => {
     { path: '/connectivity', label: 'Connectivity', icon: 'fas fa-wifi', enabled: false },
   ];
 
+  const handleLinkClick = () => {
+    // Close sidebar on mobile when a link is clicked
+    if (window.innerWidth <= 768) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <span className="logo-icon"><i className="fas fa-graduation-cap"></i></span>
           <span className="logo-text">Smart Campus</span>
         </div>
+        <button className="sidebar-close" onClick={onClose} aria-label="Close menu">
+          <i className="fas fa-times"></i>
+        </button>
       </div>
       
       <nav className="sidebar-nav">
@@ -41,6 +51,7 @@ const Sidebar = () => {
                     `nav-link ${isActive ? 'active' : ''}`
                   }
                   end={item.path === '/'}
+                  onClick={handleLinkClick}
                 >
                   <span className="nav-icon"><i className={item.icon}></i></span>
                   <span className="nav-label">{item.label}</span>
