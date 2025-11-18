@@ -1,0 +1,124 @@
+/* LineChart Styles */
+.line-chart {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.chart-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--spacing-sm);
+  padding-left: 40px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.grid-lines {
+  opacity: 0.1;
+}
+
+.grid-line {
+  stroke: var(--text-secondary);
+  stroke-width: 0.5;
+}
+
+.chart-area {
+  fill: var(--primary-color);
+  opacity: 0.1;
+  transition: opacity var(--transition-fast);
+}
+
+.line-chart:hover .chart-area {
+  opacity: 0.15;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width var(--transition-fast);
+}
+
+.line-chart:hover .chart-line {
+  stroke-width: 2.5;
+}
+
+.chart-point {
+  fill: var(--primary-color);
+  transition: r var(--transition-fast);
+}
+
+.line-chart:hover .chart-point {
+  r: 2;
+}
+
+.y-axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: var(--spacing-sm);
+}
+
+.y-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.x-axis {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 40px;
+  padding-top: var(--spacing-sm);
+}
+
+.x-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .line-chart {
+    padding: var(--spacing-md);
+  }
+  
+  .chart-wrapper {
+    padding-left: 30px;
+  }
+  
+  .y-axis {
+    width: 30px;
+  }
+  
+  .x-axis {
+    padding-left: 30px;
+  }
+  
+  .y-label,
+  .x-label {
+    font-size: 10px;
+  }
+}

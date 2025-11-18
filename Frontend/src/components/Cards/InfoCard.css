@@ -1,0 +1,123 @@
+/* InfoCard Styles */
+.info-card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  cursor: default;
+  border: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.info-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.info-card-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-card-icon {
+  font-size: var(--text-2xl);
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-card-body {
+  margin-bottom: var(--spacing-md);
+}
+
+.info-card-value {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--spacing-sm);
+}
+
+.info-card-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.info-card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--text-sm);
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.trend-up {
+  color: var(--success-color);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.trend-down {
+  color: var(--danger-color);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.trend-neutral {
+  color: var(--secondary-color);
+  background-color: var(--bg-tertiary);
+}
+
+.trend-value {
+  color: var(--text-secondary);
+}
+
+/* Color Variants */
+.info-card-primary .info-card-icon {
+  color: var(--primary-color);
+}
+
+.info-card-success .info-card-icon {
+  color: var(--success-color);
+}
+
+.info-card-warning .info-card-icon {
+  color: var(--warning-color);
+}
+
+.info-card-danger .info-card-icon {
+  color: var(--danger-color);
+}
+
+.info-card-info .info-card-icon {
+  color: var(--info-color);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .info-card {
+    padding: var(--spacing-md);
+  }
+  
+  .info-card-value {
+    font-size: var(--text-2xl);
+  }
+}

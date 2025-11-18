@@ -11,6 +11,14 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+env
+DOCUMENTATION_INDEX.md
+FILE_STRUCTURE.md
+FINAL_DELIVERY.md
+PROJECT_COMPLETE.md
+PROJECT_README.md
+QUICK_START.md
 
 # Editor directories and files
 .vscode/*
