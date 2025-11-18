@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS campuses;
 
 -- Campuses Table
 CREATE TABLE campuses (
-    campus_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     location VARCHAR(255),
     area_sqm INT,
@@ -28,7 +28,7 @@ CREATE TABLE campuses (
 
 -- Buildings Table
 CREATE TABLE buildings (
-    building_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     campus_id INT NOT NULL,
     building_name VARCHAR(255) NOT NULL,
     building_code VARCHAR(50),
@@ -37,29 +37,29 @@ CREATE TABLE buildings (
     total_capacity INT DEFAULT 0,
     status ENUM('active', 'inactive', 'maintenance') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (campus_id) REFERENCES campuses(campus_id) ON DELETE CASCADE,
+    FOREIGN KEY (campus_id) REFERENCES campuses(id) ON DELETE CASCADE,
     UNIQUE KEY unique_building (campus_id, building_code)
 );
 
 -- Rooms Table
 CREATE TABLE rooms (
-    room_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     building_id INT NOT NULL,
     room_number VARCHAR(50) NOT NULL,
     room_name VARCHAR(255),
     floor INT,
-    room_type ENUM('classroom', 'lab', 'lecture-hall', 'auditorium', 'office', 'other') DEFAULT 'classroom',
+    room_type ENUM('classroom', 'lab', 'lecture-hall', 'auditorium', 'office', 'cafeteria', 'gym', 'gcr', 'other') DEFAULT 'classroom',
     capacity INT NOT NULL,
     current_occupancy INT DEFAULT 0,
     status ENUM('available', 'occupied', 'reserved', 'maintenance') DEFAULT 'available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (building_id) REFERENCES buildings(building_id) ON DELETE CASCADE,
+    FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE,
     UNIQUE KEY unique_room (building_id, room_number)
 );
 
 -- Tickets Table (Maintenance)
 CREATE TABLE tickets (
-    ticket_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     building_id INT NOT NULL,
     room_id INT,
     title VARCHAR(255) NOT NULL,
@@ -73,26 +73,26 @@ CREATE TABLE tickets (
     estimated_cost DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (building_id) REFERENCES buildings(building_id) ON DELETE CASCADE,
-    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL
+    FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE SET NULL
 );
 
 -- Energy Readings Table
 CREATE TABLE energy_readings (
-    reading_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     building_id INT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     consumption_kwh DECIMAL(10, 2) NOT NULL,
     cost DECIMAL(10, 2),
     efficiency_percentage DECIMAL(5, 2),
-    FOREIGN KEY (building_id) REFERENCES buildings(building_id) ON DELETE CASCADE,
+    FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE,
     INDEX idx_timestamp (timestamp),
     INDEX idx_building_timestamp (building_id, timestamp)
 );
 
 -- Energy Anomalies Table
 CREATE TABLE energy_anomalies (
-    anomaly_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     building_id INT NOT NULL,
     reading_id INT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -101,8 +101,8 @@ CREATE TABLE energy_anomalies (
     actual_consumption DECIMAL(10, 2) NOT NULL,
     expected_consumption DECIMAL(10, 2) NOT NULL,
     deviation_percentage DECIMAL(5, 2),
-    FOREIGN KEY (building_id) REFERENCES buildings(building_id) ON DELETE CASCADE,
-    FOREIGN KEY (reading_id) REFERENCES energy_readings(reading_id) ON DELETE SET NULL,
+    FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE,
+    FOREIGN KEY (reading_id) REFERENCES energy_readings(id) ON DELETE SET NULL,
     INDEX idx_timestamp (timestamp),
     INDEX idx_severity (severity)
 );
