@@ -4,6 +4,9 @@ import Dashboard from '../pages/Dashboard/Dashboard';
 import Energy from '../pages/Energy/Energy';
 import Space from '../pages/Space/Space';
 import Maintenance from '../pages/Maintenance/Maintenance';
+import AdminCampuses from '../pages/AdminCampuses/AdminCampuses';
+import AdminRooms from '../pages/AdminRooms/AdminRooms';
+import AdminTickets from '../pages/AdminTickets/AdminTickets';
 
 const AppRouter = () => {
   return (
@@ -14,6 +17,11 @@ const AppRouter = () => {
           <Route path="energy" element={<Energy />} />
           <Route path="space" element={<Space />} />
           <Route path="maintenance" element={<Maintenance />} />
+          
+          {/* Admin Routes */}
+          <Route path="admin/campuses" element={<AdminCampuses />} />
+          <Route path="admin/rooms" element={<AdminRooms />} />
+          <Route path="admin/tickets" element={<AdminTickets />} />
           
           {/* Disabled routes - can be uncommented when ready */}
           {/* <Route path="security" element={<ComingSoon page="Security" />} /> */}

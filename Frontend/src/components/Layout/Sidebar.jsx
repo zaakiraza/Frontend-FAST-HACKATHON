@@ -7,6 +7,10 @@ const Sidebar = () => {
     { path: '/energy', label: 'Energy Monitoring', icon: 'fas fa-bolt', enabled: true },
     { path: '/space', label: 'Space Utilization', icon: 'fas fa-building', enabled: true },
     { path: '/maintenance', label: 'Maintenance', icon: 'fas fa-wrench', enabled: true },
+    { path: null, label: 'Admin', icon: 'fas fa-cog', enabled: true, isSection: true },
+    { path: '/admin/campuses', label: 'Campus Management', icon: 'fas fa-university', enabled: true },
+    { path: '/admin/rooms', label: 'Room Management', icon: 'fas fa-door-open', enabled: true },
+    { path: '/admin/tickets', label: 'Ticket Management', icon: 'fas fa-ticket-alt', enabled: true },
     { path: '/security', label: 'Security', icon: 'fas fa-lock', enabled: false },
     { path: '/mobility', label: 'Mobility', icon: 'fas fa-car', enabled: false },
     { path: '/connectivity', label: 'Connectivity', icon: 'fas fa-wifi', enabled: false },
@@ -23,9 +27,14 @@ const Sidebar = () => {
       
       <nav className="sidebar-nav">
         <ul className="nav-list">
-          {menuItems.map((item) => (
-            <li key={item.path} className="nav-item">
-              {item.enabled ? (
+          {menuItems.map((item, index) => (
+            <li key={item.path || `section-${index}`} className={`nav-item ${item.isSection ? 'nav-section' : ''}`}>
+              {item.isSection ? (
+                <div className="nav-section-title">
+                  <span className="nav-icon"><i className={item.icon}></i></span>
+                  <span className="nav-label">{item.label}</span>
+                </div>
+              ) : item.enabled ? (
                 <NavLink 
                   to={item.path} 
                   className={({ isActive }) => 

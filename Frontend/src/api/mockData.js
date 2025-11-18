@@ -1,5 +1,368 @@
 // Mock Data for Smart Campus Dashboard
 
+// =============================================
+// ADMIN DATA - Campuses, Rooms, Tickets
+// =============================================
+
+// Campus Data (for Energy Monitoring & Admin)
+export const campusData = [
+  {
+    campus_id: 1,
+    name: 'Main Campus',
+    location: 'Karachi, Pakistan',
+    area_sqm: 125000,
+    building_count: 8,
+    total_capacity: 8500,
+    energy_baseline_kwh: 185000,
+    status: 'active',
+    created_at: '2020-01-15T00:00:00Z'
+  },
+  {
+    campus_id: 2,
+    name: 'Engineering Campus',
+    location: 'Lahore, Pakistan',
+    area_sqm: 95000,
+    building_count: 6,
+    total_capacity: 6200,
+    energy_baseline_kwh: 142000,
+    status: 'active',
+    created_at: '2021-06-20T00:00:00Z'
+  },
+  {
+    campus_id: 3,
+    name: 'Medical Campus',
+    location: 'Islamabad, Pakistan',
+    area_sqm: 78000,
+    building_count: 5,
+    total_capacity: 4800,
+    energy_baseline_kwh: 125000,
+    status: 'active',
+    created_at: '2022-03-10T00:00:00Z'
+  },
+  {
+    campus_id: 4,
+    name: 'Business School Campus',
+    location: 'Karachi, Pakistan',
+    area_sqm: 52000,
+    building_count: 3,
+    total_capacity: 3200,
+    energy_baseline_kwh: 89000,
+    status: 'active',
+    created_at: '2023-01-05T00:00:00Z'
+  }
+];
+
+// Room Data (for Space Utilization & Admin)
+export const roomData = [
+  {
+    room_id: 1,
+    campus_id: 1,
+    room_number: 'A-301',
+    room_name: 'Computer Lab 1',
+    building: 'Building A',
+    floor: 3,
+    room_type: 'lab',
+    capacity: 50,
+    current_occupancy: 45,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '08:00', end_time: '10:00', subject: 'Data Structures', instructor: 'Dr. Ahmed Khan' },
+      { start_time: '10:30', end_time: '12:30', subject: 'Web Development', instructor: 'Prof. Sarah Ali' }
+    ],
+    created_at: '2023-01-15T00:00:00Z'
+  },
+  {
+    room_id: 2,
+    campus_id: 1,
+    room_number: 'A-201',
+    room_name: 'Lecture Hall 1',
+    building: 'Building A',
+    floor: 2,
+    room_type: 'lecture-hall',
+    capacity: 200,
+    current_occupancy: 185,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '09:00', end_time: '11:00', subject: 'Operating Systems', instructor: 'Dr. Usman Shah' },
+      { start_time: '14:00', end_time: '16:00', subject: 'Database Systems', instructor: 'Prof. Ayesha Malik' }
+    ],
+    created_at: '2023-01-15T00:00:00Z'
+  },
+  {
+    room_id: 3,
+    campus_id: 1,
+    room_number: 'B-401',
+    room_name: 'Physics Lab',
+    building: 'Building B',
+    floor: 4,
+    room_type: 'lab',
+    capacity: 35,
+    current_occupancy: 0,
+    status: 'available',
+    scheduled_classes: [],
+    created_at: '2023-01-15T00:00:00Z'
+  },
+  {
+    room_id: 4,
+    campus_id: 1,
+    room_number: 'C-101',
+    room_name: 'Auditorium',
+    building: 'Building C',
+    floor: 1,
+    room_type: 'auditorium',
+    capacity: 500,
+    current_occupancy: 0,
+    status: 'reserved',
+    scheduled_classes: [
+      { start_time: '15:00', end_time: '17:00', subject: 'Tech Seminar', instructor: 'Guest Speaker' }
+    ],
+    created_at: '2023-01-15T00:00:00Z'
+  },
+  {
+    room_id: 5,
+    campus_id: 2,
+    room_number: 'E-202',
+    room_name: 'Engineering Lab 1',
+    building: 'Engineering Block',
+    floor: 2,
+    room_type: 'lab',
+    capacity: 40,
+    current_occupancy: 38,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '08:30', end_time: '11:30', subject: 'Circuit Design', instructor: 'Dr. Hassan Ali' }
+    ],
+    created_at: '2023-02-01T00:00:00Z'
+  },
+  {
+    room_id: 6,
+    campus_id: 2,
+    room_number: 'E-305',
+    room_name: 'CAD Lab',
+    building: 'Engineering Block',
+    floor: 3,
+    room_type: 'lab',
+    capacity: 30,
+    current_occupancy: 12,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '13:00', end_time: '15:00', subject: 'AutoCAD Basics', instructor: 'Engr. Fatima' }
+    ],
+    created_at: '2023-02-01T00:00:00Z'
+  },
+  {
+    room_id: 7,
+    campus_id: 1,
+    room_number: 'A-101',
+    room_name: 'Classroom 1',
+    building: 'Building A',
+    floor: 1,
+    room_type: 'classroom',
+    capacity: 60,
+    current_occupancy: 55,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '09:00', end_time: '11:00', subject: 'Mathematics', instructor: 'Prof. Nadia Khan' },
+      { start_time: '11:30', end_time: '13:30', subject: 'Physics', instructor: 'Dr. Imran Ahmed' }
+    ],
+    created_at: '2023-01-15T00:00:00Z'
+  },
+  {
+    room_id: 8,
+    campus_id: 3,
+    room_number: 'M-201',
+    room_name: 'Anatomy Lab',
+    building: 'Medical Building',
+    floor: 2,
+    room_type: 'lab',
+    capacity: 45,
+    current_occupancy: 42,
+    status: 'occupied',
+    scheduled_classes: [
+      { start_time: '08:00', end_time: '12:00', subject: 'Human Anatomy', instructor: 'Dr. Sana Malik' }
+    ],
+    created_at: '2023-03-10T00:00:00Z'
+  }
+];
+
+// Ticket Data (for Maintenance Tracking & Admin)
+export const ticketData = [
+  {
+    ticket_id: 1,
+    campus_id: 1,
+    title: 'Air Conditioning Not Working',
+    description: 'The AC unit in Room A-301 is not cooling properly. Temperature is 32°C.',
+    category: 'hvac',
+    priority: 'high',
+    status: 'open',
+    location: 'Building A, Floor 3',
+    building: 'Building A',
+    room: 'A-301',
+    reported_by: 'Dr. Ahmed Khan',
+    assigned_to: 'HVAC Team',
+    estimated_cost: 5000,
+    created_at: '2025-11-18T08:30:00Z',
+    updated_at: '2025-11-18T08:30:00Z'
+  },
+  {
+    ticket_id: 2,
+    campus_id: 1,
+    title: 'Broken Projector',
+    description: 'Projector in Lecture Hall 1 shows no display. HDMI port seems damaged.',
+    category: 'equipment',
+    priority: 'medium',
+    status: 'in-progress',
+    location: 'Building A, Floor 2',
+    building: 'Building A',
+    room: 'A-201',
+    reported_by: 'Prof. Ayesha Malik',
+    assigned_to: 'IT Support',
+    estimated_cost: 3500,
+    created_at: '2025-11-17T14:20:00Z',
+    updated_at: '2025-11-18T09:15:00Z'
+  },
+  {
+    ticket_id: 3,
+    campus_id: 1,
+    title: 'Water Leakage',
+    description: 'Water dripping from ceiling in Building B restroom near Physics Lab.',
+    category: 'plumbing',
+    priority: 'critical',
+    status: 'in-progress',
+    location: 'Building B, Floor 4',
+    building: 'Building B',
+    room: 'Restroom B-401',
+    reported_by: 'Cleaning Staff',
+    assigned_to: 'Plumbing Team',
+    estimated_cost: 8000,
+    created_at: '2025-11-18T07:45:00Z',
+    updated_at: '2025-11-18T08:00:00Z'
+  },
+  {
+    ticket_id: 4,
+    campus_id: 2,
+    title: 'Flickering Lights',
+    description: 'Multiple tube lights in E-202 are flickering continuously. Causing eye strain.',
+    category: 'electrical',
+    priority: 'medium',
+    status: 'open',
+    location: 'Engineering Block, Floor 2',
+    building: 'Engineering Block',
+    room: 'E-202',
+    reported_by: 'Dr. Hassan Ali',
+    assigned_to: 'Electrical Maintenance',
+    estimated_cost: 2000,
+    created_at: '2025-11-18T10:30:00Z',
+    updated_at: '2025-11-18T10:30:00Z'
+  },
+  {
+    ticket_id: 5,
+    campus_id: 1,
+    title: 'Door Lock Malfunction',
+    description: 'Smart lock on Auditorium door not responding to access cards.',
+    category: 'security',
+    priority: 'high',
+    status: 'open',
+    location: 'Building C, Floor 1',
+    building: 'Building C',
+    room: 'C-101',
+    reported_by: 'Security Department',
+    assigned_to: 'Security Systems',
+    estimated_cost: 4000,
+    created_at: '2025-11-18T06:15:00Z',
+    updated_at: '2025-11-18T06:15:00Z'
+  },
+  {
+    ticket_id: 6,
+    campus_id: 3,
+    title: 'Microscope Not Functioning',
+    description: 'Digital microscope #12 in Anatomy Lab has broken lens. Cannot be used for practicals.',
+    category: 'equipment',
+    priority: 'high',
+    status: 'in-progress',
+    location: 'Medical Building, Floor 2',
+    building: 'Medical Building',
+    room: 'M-201',
+    reported_by: 'Dr. Sana Malik',
+    assigned_to: 'Lab Equipment Team',
+    estimated_cost: 15000,
+    created_at: '2025-11-17T11:00:00Z',
+    updated_at: '2025-11-18T08:45:00Z'
+  },
+  {
+    ticket_id: 7,
+    campus_id: 2,
+    title: 'Network Switch Down',
+    description: 'Network switch in CAD Lab is not working. Students cannot access lab computers.',
+    category: 'equipment',
+    priority: 'critical',
+    status: 'open',
+    location: 'Engineering Block, Floor 3',
+    building: 'Engineering Block',
+    room: 'E-305',
+    reported_by: 'IT Department',
+    assigned_to: 'Network Team',
+    estimated_cost: 12000,
+    created_at: '2025-11-18T09:00:00Z',
+    updated_at: '2025-11-18T09:00:00Z'
+  },
+  {
+    ticket_id: 8,
+    campus_id: 1,
+    title: 'Whiteboard Needs Replacement',
+    description: 'Whiteboard in Classroom 1 has permanent marker stains and cannot be cleaned.',
+    category: 'other',
+    priority: 'low',
+    status: 'open',
+    location: 'Building A, Floor 1',
+    building: 'Building A',
+    room: 'A-101',
+    reported_by: 'Prof. Nadia Khan',
+    assigned_to: 'Facilities Team',
+    estimated_cost: 1500,
+    created_at: '2025-11-16T15:30:00Z',
+    updated_at: '2025-11-16T15:30:00Z'
+  },
+  {
+    ticket_id: 9,
+    campus_id: 4,
+    title: 'Elevator Not Working',
+    description: 'Main elevator in Business School is stuck between floors. Emergency maintenance needed.',
+    category: 'structural',
+    priority: 'critical',
+    status: 'in-progress',
+    location: 'Business Building, Floor 2-3',
+    building: 'Business Building',
+    room: 'Elevator 1',
+    reported_by: 'Security Guard',
+    assigned_to: 'Elevator Contractor',
+    estimated_cost: 25000,
+    created_at: '2025-11-18T07:00:00Z',
+    updated_at: '2025-11-18T07:30:00Z'
+  },
+  {
+    ticket_id: 10,
+    campus_id: 1,
+    title: 'Cleaning Required',
+    description: 'Deep cleaning needed in cafeteria after event. Spills and waste everywhere.',
+    category: 'cleaning',
+    priority: 'medium',
+    status: 'resolved',
+    location: 'Student Center, Ground Floor',
+    building: 'Student Center',
+    room: 'Cafeteria',
+    reported_by: 'Cafeteria Manager',
+    assigned_to: 'Cleaning Team',
+    estimated_cost: 500,
+    created_at: '2025-11-17T18:00:00Z',
+    updated_at: '2025-11-18T06:00:00Z'
+  }
+];
+
+// =============================================
+// DASHBOARD & MODULE DATA
+// =============================================
+
 // Energy Monitoring Data
 export const energyData = {
   summary: {

@@ -46,6 +46,7 @@ const Maintenance = () => {
   const loadTicketsData = async () => {
     try {
       const ticketsData = await getAllTickets(filter);
+      console.log(ticketsData);
       setTickets(ticketsData);
     } catch (error) {
       console.error('Error loading tickets:', error);
@@ -97,12 +98,13 @@ const Maintenance = () => {
     }
   };
 
+  
   const ticketColumns = [
     {
       header: 'Ticket ID',
       accessor: 'id',
-      render: (row) => (
-        <span className="ticket-id">{row.id}</span>
+      render: (value) => (
+        <span className="ticket-id">{value}</span>
       )
     },
     {
@@ -120,33 +122,33 @@ const Maintenance = () => {
     {
       header: 'Priority',
       accessor: 'priority',
-      render: (row) => (
+      render: (value) => (
         <span className={`table-badge ${
-          row.priority === 'high' ? 'danger' : 
-          row.priority === 'medium' ? 'warning' : 'info'
+          value === 'high' ? 'danger' : 
+          value === 'medium' ? 'warning' : 'info'
         }`}>
-          {row.priority}
+          {value}
         </span>
       )
     },
     {
       header: 'Status',
       accessor: 'status',
-      render: (row) => (
+      render: (value) => (
         <span className={`table-badge ${
-          row.status === 'open' ? 'warning' : 
-          row.status === 'in-progress' ? 'info' : 'success'
+          value === 'open' ? 'warning' : 
+          value === 'in-progress' ? 'info' : 'success'
         }`}>
-          {row.status}
+          {value}
         </span>
       )
     },
     {
       header: 'Reported By',
       accessor: 'reportedBy',
-      render: (row) => (
-        <span className={`reported-by ${row.reportedBy === 'System' ? 'system-badge' : ''}`}>
-          {row.reportedBy}
+      render: (value) => (
+        <span className={`reported-by ${value === 'System' ? 'system-badge' : ''}`}>
+          {value}
         </span>
       )
     },

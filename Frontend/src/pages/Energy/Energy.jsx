@@ -61,28 +61,28 @@ const Energy = () => {
     {
       header: 'Time',
       accessor: 'timestamp',
-      render: (row) => new Date(row.timestamp).toLocaleTimeString()
+      render: (value) => new Date(value).toLocaleTimeString()
     },
     {
       header: 'Consumption',
       accessor: 'consumption',
-      render: (row) => `${row.consumption.toLocaleString()} kWh`
+      render: (value) => `${value.toLocaleString()} kWh`
     },
     {
       header: 'Deviation',
       accessor: 'deviation',
-      render: (row) => (
+      render: (value, row) => (
         <span className={`table-badge ${row.severity === 'high' ? 'danger' : row.severity === 'medium' ? 'warning' : 'info'}`}>
-          {row.deviation}
+          {value}
         </span>
       )
     },
     {
       header: 'Severity',
       accessor: 'severity',
-      render: (row) => (
-        <span className={`table-badge ${row.severity === 'high' ? 'danger' : row.severity === 'medium' ? 'warning' : 'success'}`}>
-          {row.severity}
+      render: (value) => (
+        <span className={`table-badge ${value === 'high' ? 'danger' : value === 'medium' ? 'warning' : 'success'}`}>
+          {value}
         </span>
       )
     }

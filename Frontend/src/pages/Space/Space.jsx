@@ -67,13 +67,13 @@ const Space = () => {
     {
       header: 'Utilization',
       accessor: 'percentage',
-      render: (row) => (
+      render: (value, row) => (
         <div className="utilization-cell">
-          <span>{row.percentage}%</span>
+          <span>{value}%</span>
           <div className="progress-bar">
             <div 
               className={`progress-fill progress-${row.status}`}
-              style={{ width: `${Math.min(row.percentage, 100)}%` }}
+              style={{ width: `${Math.min(value, 100)}%` }}
             ></div>
           </div>
         </div>
@@ -82,13 +82,13 @@ const Space = () => {
     {
       header: 'Status',
       accessor: 'status',
-      render: (row) => (
+      render: (value) => (
         <span className={`table-badge ${
-          row.status === 'overcapacity' ? 'danger' : 
-          row.status === 'optimal' ? 'success' : 
-          row.status === 'underutilized' ? 'warning' : 'info'
+          value === 'overcapacity' ? 'danger' : 
+          value === 'optimal' ? 'success' : 
+          value === 'underutilized' ? 'warning' : 'info'
         }`}>
-          {row.status}
+          {value}
         </span>
       )
     }
