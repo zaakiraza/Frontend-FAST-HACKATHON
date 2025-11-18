@@ -17,10 +17,10 @@ app.get('/health', (req, res) => {
 });
 
 // Import routes
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const energyRoutes = require('./routes/energyRoutes');
-const maintenanceRoutes = require('./routes/maintenanceRoutes');
-const spaceRoutes = require('./routes/spaceRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const energyRoutes = require('./src/routes/energyRoutes');
+const maintenanceRoutes = require('./src/routes/maintenanceRoutes');
+const spaceRoutes = require('./src/routes/spaceRoutes');
 
 // Test database connection endpoint
 app.get('/api/test-db', async (req, res) => {
