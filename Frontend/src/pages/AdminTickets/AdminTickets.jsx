@@ -117,7 +117,7 @@ const AdminTickets = () => {
 
     try {
       if (editingTicket) {
-        await updateTicket(editingTicket.ticket_id, formData);
+        await updateTicket(editingTicket.id, formData);
         showAlert('Ticket updated successfully', 'success');
       } else {
         await createTicket(formData);

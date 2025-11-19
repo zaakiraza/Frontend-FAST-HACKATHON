@@ -25,7 +25,7 @@ const MaintenanceModel = {
   async getAllTickets(filter = 'all') {
     let query = `
       SELECT 
-        CONCAT('MT-', LPAD(t.ticket_id, 4, '0')) as id,
+        CONCAT('MT-', LPAD(t.id, 4, '0')) as id,
         t.title,
         b.building_name as building,
         t.location,
@@ -56,7 +56,7 @@ const MaintenanceModel = {
   async getTicketsByPriority(priority) {
     const query = `
       SELECT 
-        CONCAT('MT-', LPAD(t.ticket_id, 4, '0')) as id,
+        CONCAT('MT-', LPAD(t.id, 4, '0')) as id,
         t.title,
         b.building_name as building,
         t.location,
@@ -83,7 +83,7 @@ const MaintenanceModel = {
     
     const query = `
       SELECT 
-        CONCAT('MT-', LPAD(t.ticket_id, 4, '0')) as id,
+        CONCAT('MT-', LPAD(t.id, 4, '0')) as id,
         t.title,
         b.building_name as building,
         t.location,
@@ -99,8 +99,8 @@ const MaintenanceModel = {
         r.room_number as room
       FROM tickets t
       JOIN buildings b ON t.building_id = b.id
-      LEFT JOIN rooms r ON t.room_id = r.room_id
-      WHERE t.ticket_id = ?
+      LEFT JOIN rooms r ON t.room_id = r.id
+      WHERE t.id = ?
     `;
     
     const [rows] = await db.query(query, [numericId]);

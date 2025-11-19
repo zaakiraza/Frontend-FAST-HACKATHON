@@ -5,7 +5,7 @@ import { roomData, campusData } from './mockData';
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
 let rooms = [...roomData];
-let nextRoomId = Math.max(...rooms.map(r => r.room_id)) + 1;
+let nextRoomId = Math.max(...rooms.map(r => r.id)) + 1;
 
 /**
  * Get all rooms with optional filtering
@@ -42,7 +42,7 @@ export const getRooms = async (filters = {}) => {
  */
 export const getRoomById = async (roomId) => {
   await delay();
-  const room = rooms.find(r => r.room_id === roomId);
+  const room = rooms.find(r => r.id === roomId);
   if (!room) {
     throw new Error(`Room with ID ${roomId} not found`);
   }
@@ -104,7 +104,7 @@ export const createRoom = async (roomData) => {
 export const updateRoom = async (roomId, roomData) => {
   await delay(600);
   
-  const index = rooms.findIndex(r => r.room_id === roomId);
+  const index = rooms.findIndex(r => r.id === roomId);
   if (index === -1) {
     throw new Error(`Room with ID ${roomId} not found`);
   }
@@ -135,7 +135,7 @@ export const updateRoom = async (roomId, roomData) => {
 export const deleteRoom = async (roomId) => {
   await delay(400);
   
-  const index = rooms.findIndex(r => r.room_id === roomId);
+  const index = rooms.findIndex(r => r.id === roomId);
   if (index === -1) {
     throw new Error(`Room with ID ${roomId} not found`);
   }

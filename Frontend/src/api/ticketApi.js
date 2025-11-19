@@ -5,7 +5,7 @@ import { ticketData, campusData } from './mockData';
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
 let tickets = [...ticketData];
-let nextTicketId = Math.max(...tickets.map(t => t.ticket_id)) + 1;
+let nextTicketId = Math.max(...tickets.map(t => t.id)) + 1;
 
 /**
  * Get all tickets with optional filtering
@@ -50,7 +50,7 @@ export const getTickets = async (filters = {}) => {
  */
 export const getTicketById = async (ticketId) => {
   await delay();
-  const ticket = tickets.find(t => t.ticket_id === ticketId);
+  const ticket = tickets.find(t => t.id === ticketId);
   if (!ticket) {
     throw new Error(`Ticket with ID ${ticketId} not found`);
   }
@@ -117,7 +117,7 @@ export const createTicket = async (ticketData) => {
 export const updateTicket = async (ticketId, ticketData) => {
   await delay(600);
   
-  const index = tickets.findIndex(t => t.ticket_id === ticketId);
+  const index = tickets.findIndex(t => t.id === ticketId);
   if (index === -1) {
     throw new Error(`Ticket with ID ${ticketId} not found`);
   }
@@ -150,7 +150,7 @@ export const updateTicket = async (ticketId, ticketData) => {
 export const deleteTicket = async (ticketId) => {
   await delay(400);
   
-  const index = tickets.findIndex(t => t.ticket_id === ticketId);
+  const index = tickets.findIndex(t => t.id === ticketId);
   if (index === -1) {
     throw new Error(`Ticket with ID ${ticketId} not found`);
   }

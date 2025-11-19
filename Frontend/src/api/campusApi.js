@@ -5,7 +5,7 @@ import { campusData } from './mockData';
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
 let campuses = [...campusData];
-let nextCampusId = Math.max(...campuses.map(c => c.campus_id)) + 1;
+let nextCampusId = Math.max(...campuses.map(c => c.id)) + 1;
 
 /**
  * Get all campuses
@@ -23,7 +23,7 @@ export const getCampuses = async () => {
  */
 export const getCampusById = async (campusId) => {
   await delay();
-  const campus = campuses.find(c => c.campus_id === campusId);
+  const campus = campuses.find(c => c.id === campusId);
   if (!campus) {
     throw new Error(`Campus with ID ${campusId} not found`);
   }
@@ -70,7 +70,7 @@ export const createCampus = async (campusData) => {
 export const updateCampus = async (campusId, campusData) => {
   await delay(600);
   
-  const index = campuses.findIndex(c => c.campus_id === campusId);
+  const index = campuses.findIndex(c => c.id === campusId);
   if (index === -1) {
     throw new Error(`Campus with ID ${campusId} not found`);
   }
@@ -98,7 +98,7 @@ export const updateCampus = async (campusId, campusData) => {
 export const deleteCampus = async (campusId) => {
   await delay(400);
   
-  const index = campuses.findIndex(c => c.campus_id === campusId);
+  const index = campuses.findIndex(c => c.id === campusId);
   if (index === -1) {
     throw new Error(`Campus with ID ${campusId} not found`);
   }
