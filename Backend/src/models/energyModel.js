@@ -22,7 +22,7 @@ const EnergyModel = {
   async getBuildings() {
     const query = `
       SELECT 
-        b.id,
+        b.uid as id,
         CONCAT(c.name, ' - ', b.building_name) as name,
         c.location,
         b.total_rooms,
@@ -37,47 +37,50 @@ const EnergyModel = {
   },
 
   // Get energy time series data
-  async getTimeSeriesData(buildingId = null, timeRange = 'hourly') {
+  async getTimeSeriesData(buildingUid = null, timeRange = 'hourly') {
     let query;
     let params = [];
 
     if (timeRange === 'hourly') {
       query = `
         SELECT 
-          DATE_FORMAT(timestamp, '%H:00') as label,
-          SUM(consumption_kwh) as value
-        FROM energy_readings
-        WHERE DATE(timestamp) = CURDATE()
-        ${buildingId ? 'AND building_id = ?' : ''}
-        GROUP BY DATE_FORMAT(timestamp, '%H:00')
-        ORDER BY DATE_FORMAT(timestamp, '%H:00')
+          DATE_FORMAT(e.timestamp, '%H:00') as label,
+          SUM(e.consumption_kwh) as value
+        FROM energy_readings e
+        ${buildingUid ? 'JOIN buildings b ON e.building_id = b.id' : ''}
+        WHERE DATE(e.timestamp) = CURDATE()
+        ${buildingUid ? 'AND b.uid = ?' : ''}
+        GROUP BY DATE_FORMAT(e.timestamp, '%H:00')
+        ORDER BY DATE_FORMAT(e.timestamp, '%H:00')
       `;
     } else if (timeRange === 'daily') {
       query = `
         SELECT 
-          DATE_FORMAT(timestamp, '%a') as label,
-          SUM(consumption_kwh) as value
-        FROM energy_readings
-        WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-        ${buildingId ? 'AND building_id = ?' : ''}
-        GROUP BY DATE(timestamp)
-        ORDER BY DATE(timestamp)
+          DATE_FORMAT(e.timestamp, '%a') as label,
+          SUM(e.consumption_kwh) as value
+        FROM energy_readings e
+        ${buildingUid ? 'JOIN buildings b ON e.building_id = b.id' : ''}
+        WHERE e.timestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        ${buildingUid ? 'AND b.uid = ?' : ''}
+        GROUP BY DATE(e.timestamp)
+        ORDER BY DATE(e.timestamp)
       `;
     } else if (timeRange === 'weekly') {
       query = `
         SELECT 
-          CONCAT('Week ', WEEK(timestamp, 1)) as label,
-          SUM(consumption_kwh) as value
-        FROM energy_readings
-        WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
-        ${buildingId ? 'AND building_id = ?' : ''}
-        GROUP BY WEEK(timestamp, 1)
-        ORDER BY WEEK(timestamp, 1)
+          CONCAT('Week ', WEEK(e.timestamp, 1)) as label,
+          SUM(e.consumption_kwh) as value
+        FROM energy_readings e
+        ${buildingUid ? 'JOIN buildings b ON e.building_id = b.id' : ''}
+        WHERE e.timestamp >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
+        ${buildingUid ? 'AND b.uid = ?' : ''}
+        GROUP BY WEEK(e.timestamp, 1)
+        ORDER BY WEEK(e.timestamp, 1)
       `;
     }
 
-    if (buildingId) {
-      params.push(buildingId);
+    if (buildingUid) {
+      params.push(buildingUid);
     }
 
     const [rows] = await db.query(query, params);
@@ -115,7 +118,7 @@ const EnergyModel = {
   },
 
   // Get building energy details
-  async getBuildingDetail(buildingId) {
+  async getBuildingDetail(buildingUid) {
     const query = `
       SELECT 
         CONCAT(c.name, ' - ', b.building_name) as building,
@@ -125,11 +128,11 @@ const EnergyModel = {
       FROM energy_readings e
       JOIN buildings b ON e.building_id = b.id
       JOIN campuses c ON b.campus_id = c.id
-      WHERE e.building_id = ? AND DATE(e.timestamp) = CURDATE()
+      WHERE b.uid = ? AND DATE(e.timestamp) = CURDATE()
       GROUP BY b.id, c.name, b.building_name
     `;
     
-    const [rows] = await db.query(query, [buildingId]);
+    const [rows] = await db.query(query, [buildingUid]);
     
     if (rows.length === 0) {
       return null;
@@ -138,16 +141,17 @@ const EnergyModel = {
     // Get anomalies for this building
     const anomalyQuery = `
       SELECT 
-        id,
-        location,
-        timestamp,
-        severity,
-        actual_consumption as consumption
-      FROM energy_anomalies
-      WHERE building_id = ? AND DATE(timestamp) = CURDATE()
+        ea.id,
+        ea.location,
+        ea.timestamp,
+        ea.severity,
+        ea.actual_consumption as consumption
+      FROM energy_anomalies ea
+      JOIN buildings b ON ea.building_id = b.id
+      WHERE b.uid = ? AND DATE(ea.timestamp) = CURDATE()
     `;
     
-    const [anomalies] = await db.query(anomalyQuery, [buildingId]);
+    const [anomalies] = await db.query(anomalyQuery, [buildingUid]);
     
     return {
       ...rows[0],

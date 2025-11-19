@@ -33,6 +33,9 @@ const energyRoutes = require('./src/routes/energyRoutes');
 const maintenanceRoutes = require('./src/routes/maintenanceRoutes');
 const spaceRoutes = require('./src/routes/spaceRoutes');
 const simulatorRoutes = require('./src/routes/simulatorRoutes');
+const campusRoutes = require('./src/routes/campusRoutes');
+const buildingRoutes = require('./src/routes/buildingRoutes');
+const roomRoutes = require('./src/routes/roomRoutes');
 
 // Test database connection endpoint
 app.get('/api/test-db', async (req, res) => {
@@ -63,6 +66,9 @@ app.use('/api/energy', energyRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/space', spaceRoutes);
 app.use('/api/simulator', simulatorRoutes);
+app.use('/api/campuses', campusRoutes);
+app.use('/api/buildings', buildingRoutes);
+app.use('/api/rooms', roomRoutes);
 
 // Import and start IoT simulators
 const EnergySensorSimulator = require('./src/simulators/energySensorSimulator');
