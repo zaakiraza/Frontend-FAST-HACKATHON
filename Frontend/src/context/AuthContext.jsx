@@ -54,8 +54,12 @@ export const AuthProvider = ({ children }) => {
         const { token, user } = data.data;
         
         // Extract permission names
-        const permissionNames = user.permissions.map(p => p.name);
-        const roleNames = user.roles.map(r => r.name);
+        const permissionNames = user.permissions?.map(p => p.name) || [];
+        const roleNames = user.roles?.map(r => r.name) || [];
+
+        console.log('Login successful - User:', user);
+        console.log('Extracted permissions:', permissionNames);
+        console.log('Extracted roles:', roleNames);
 
         // Store in state
         setToken(token);
@@ -91,14 +95,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const hasPermission = (permissionName) => {
+    console.log('Checking permission:', permissionName, 'Available:', permissions);
     return permissions.includes(permissionName);
   };
 
   const hasAnyPermission = (permissionNames) => {
+    console.log('Checking any permission:', permissionNames, 'Available:', permissions);
     return permissionNames.some(p => permissions.includes(p));
   };
 
   const hasRole = (roleName) => {
+    console.log('Checking role:', roleName, 'Available:', roles);
     return roles.includes(roleName);
   };
 
