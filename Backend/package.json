@@ -1,16 +1,24 @@
 {
-  "name": "backend",
+  "name": "smart-campus-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "simulator:setup": "node src/simulators/runSimulators.js --setup",
+    "simulator": "node src/simulators/runSimulators.js",
+    "simulator:energy": "node src/simulators/runSimulators.js energy",
+    "simulator:occupancy": "node src/simulators/runSimulators.js occupancy",
+    "deploy": "node src/simulators/runSimulators.js --setup && node index.js"
   },
-  "keywords": [],
+  "keywords": ["smart-campus", "iot", "energy-monitoring", "occupancy-tracking"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Smart Campus Management System Backend API with IoT Simulators",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

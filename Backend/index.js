@@ -6,8 +6,15 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,6 +32,7 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const energyRoutes = require('./src/routes/energyRoutes');
 const maintenanceRoutes = require('./src/routes/maintenanceRoutes');
 const spaceRoutes = require('./src/routes/spaceRoutes');
+const simulatorRoutes = require('./src/routes/simulatorRoutes');
 
 // Test database connection endpoint
 app.get('/api/test-db', async (req, res) => {
@@ -54,6 +62,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/space', spaceRoutes);
+app.use('/api/simulator', simulatorRoutes);
 
 // Start server
 app.listen(PORT, () => {
