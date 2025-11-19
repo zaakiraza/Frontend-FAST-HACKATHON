@@ -86,7 +86,7 @@ const AuthController = {
       if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials'
+          message: 'User Not Found'
         });
       }
 
@@ -95,7 +95,8 @@ const AuthController = {
       if (!isPasswordValid) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials'
+          message: 'Invalid Password',
+          validPassword: isPasswordValid
         });
       }
 

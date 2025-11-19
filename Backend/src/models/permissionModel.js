@@ -183,7 +183,8 @@ const PermissionModel = {
         p.display_name,
         p.description,
         m.name as module_name,
-        m.display_name as module_display_name
+        m.display_name as module_display_name,
+        m.sort_order
       FROM permissions p
       JOIN modules m ON p.module_id = m.module_id
       JOIN model_has_permissions mhp ON p.permission_id = mhp.permission_id

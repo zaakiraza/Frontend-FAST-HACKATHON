@@ -53,7 +53,8 @@ const RoleModel = {
         p.display_name,
         p.description,
         m.name as module_name,
-        m.display_name as module_display_name
+        m.display_name as module_display_name,
+        m.sort_order
       FROM permissions p
       JOIN modules m ON p.module_id = m.module_id
       JOIN role_has_permissions rhp ON p.permission_id = rhp.permission_id

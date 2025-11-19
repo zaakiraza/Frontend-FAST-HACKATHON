@@ -245,13 +245,13 @@ SELECT 6, permission_id FROM permissions
 WHERE name LIKE '%.view%';
 
 -- Insert Sample Users
--- Password: 'password123' (hashed with bcrypt - this is just a placeholder, use proper hashing)
+-- Password: 'password123' (hashed with bcrypt)
 INSERT INTO users (username, email, password_hash, first_name, last_name, email_verified_at, is_active) VALUES
-('admin', 'admin@smartcampus.edu', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'System', 'Administrator', NOW(), TRUE),
-('john.doe', 'john.doe@smartcampus.edu', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'John', 'Doe', NOW(), TRUE),
-('jane.smith', 'jane.smith@smartcampus.edu', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Jane', 'Smith', NOW(), TRUE),
-('mike.wilson', 'mike.wilson@smartcampus.edu', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mike', 'Wilson', NOW(), TRUE),
-('sarah.jones', 'sarah.jones@smartcampus.edu', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Sarah', 'Jones', NOW(), TRUE);
+('admin', 'admin@smartcampus.edu', '$2b$10$DRxM1Y2oCiLehkfbsK5k..I3WCa5qzoT6P/Xxif5xhkwO3xLHzsGu', 'System', 'Administrator', NOW(), TRUE),
+('john.doe', 'john.doe@smartcampus.edu', '$2b$10$DRxM1Y2oCiLehkfbsK5k..I3WCa5qzoT6P/Xxif5xhkwO3xLHzsGu', 'John', 'Doe', NOW(), TRUE),
+('jane.smith', 'jane.smith@smartcampus.edu', '$2b$10$DRxM1Y2oCiLehkfbsK5k..I3WCa5qzoT6P/Xxif5xhkwO3xLHzsGu', 'Jane', 'Smith', NOW(), TRUE),
+('mike.wilson', 'mike.wilson@smartcampus.edu', '$2b$10$DRxM1Y2oCiLehkfbsK5k..I3WCa5qzoT6P/Xxif5xhkwO3xLHzsGu', 'Mike', 'Wilson', NOW(), TRUE),
+('sarah.jones', 'sarah.jones@smartcampus.edu', '$2b$10$DRxM1Y2oCiLehkfbsK5k..I3WCa5qzoT6P/Xxif5xhkwO3xLHzsGu', 'Sarah', 'Jones', NOW(), TRUE);
 
 -- Assign Roles to Users
 -- admin user -> super-admin role

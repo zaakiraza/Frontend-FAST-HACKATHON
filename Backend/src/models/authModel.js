@@ -116,13 +116,13 @@ const AuthModel = {
     // Get user's roles
     const rolesQuery = `
       SELECT 
-        r.role_id,
+        r.id as role_id,
         r.name,
         r.display_name,
         r.description,
         r.is_system_role
       FROM roles r
-      JOIN model_has_roles mhr ON r.role_id = mhr.role_id
+      JOIN model_has_roles mhr ON r.id = mhr.role_id
       WHERE mhr.model_type = 'User' AND mhr.model_id = ?
     `;
     const [roles] = await db.query(rolesQuery, [userId]);
@@ -130,15 +130,16 @@ const AuthModel = {
     // Get user's permissions (via roles + direct permissions)
     const permissionsQuery = `
       SELECT DISTINCT 
-        p.permission_id,
+        p.id as permission_id,
         p.name,
         p.display_name,
         p.description,
         m.name as module_name,
-        m.display_name as module_display_name
+        m.display_name as module_display_name,
+        m.sort_order
       FROM permissions p
-      JOIN modules m ON p.module_id = m.module_id
-      WHERE p.permission_id IN (
+      JOIN modules m ON p.module_id = m.id
+      WHERE p.id IN (
         SELECT rhp.permission_id 
         FROM role_has_permissions rhp
         JOIN model_has_roles mhr ON rhp.role_id = mhr.role_id
@@ -164,7 +165,7 @@ const AuthModel = {
     const query = `
       SELECT EXISTS(
         SELECT 1 FROM permissions p
-        WHERE p.permission_id IN (
+        WHERE p.id IN (
           SELECT rhp.permission_id 
           FROM role_has_permissions rhp
           JOIN model_has_roles mhr ON rhp.role_id = mhr.role_id
@@ -187,7 +188,7 @@ const AuthModel = {
     const query = `
       SELECT EXISTS(
         SELECT 1 FROM permissions p
-        WHERE p.permission_id IN (
+        WHERE p.id IN (
           SELECT rhp.permission_id 
           FROM role_has_permissions rhp
           JOIN model_has_roles mhr ON rhp.role_id = mhr.role_id
@@ -209,7 +210,7 @@ const AuthModel = {
     const query = `
       SELECT EXISTS(
         SELECT 1 FROM roles r
-        JOIN model_has_roles mhr ON r.role_id = mhr.role_id
+        JOIN model_has_roles mhr ON r.id = mhr.role_id
         WHERE mhr.model_type = 'User' 
           AND mhr.model_id = ? 
           AND r.name = ?

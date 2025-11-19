@@ -94,7 +94,8 @@ const UserModel = {
         p.permission_id,
         p.name,
         p.display_name,
-        m.name as module_name
+        m.name as module_name,
+        m.sort_order
       FROM permissions p
       JOIN modules m ON p.module_id = m.module_id
       WHERE p.permission_id IN (
