@@ -3,6 +3,7 @@ import { getTickets, createTicket, updateTicket, deleteTicket, getCampuses } fro
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
+import AdvancedSearch from '../../components/AdvancedSearch/AdvancedSearch';
 import './AdminTickets.css';
 
 const AdminTickets = () => {
@@ -14,8 +15,10 @@ const AdminTickets = () => {
   const [alert, setAlert] = useState(null);
   const [filters, setFilters] = useState({
     priority: 'all',
-    status: 'all'
+    status: 'all',
+    category: 'all'
   });
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     campus_id: '',
     building_id: '',
@@ -151,10 +154,38 @@ const AdminTickets = () => {
   };
 
   const filteredTickets = tickets.filter(ticket => {
+    // Priority filter
     if (filters.priority !== 'all' && ticket.priority !== filters.priority) return false;
+    
+    // Status filter
     if (filters.status !== 'all' && ticket.status !== filters.status) return false;
+    
+    // Category filter
+    if (filters.category !== 'all' && ticket.category !== filters.category) return false;
+    
+    // Search term filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return (
+        ticket.title?.toLowerCase().includes(term) ||
+        ticket.description?.toLowerCase().includes(term) ||
+        ticket.location?.toLowerCase().includes(term) ||
+        ticket.building?.toLowerCase().includes(term) ||
+        ticket.room?.toLowerCase().includes(term) ||
+        ticket.reported_by?.toLowerCase().includes(term)
+      );
+    }
+    
     return true;
   });
+
+  const handleSearch = (term, activeFilters) => {
+    setSearchTerm(term);
+    setFilters(prev => ({
+      ...prev,
+      ...activeFilters
+    }));
+  };
 
   const priorityIcons = {
     critical: 'fas fa-exclamation-circle',
@@ -283,37 +314,51 @@ const AdminTickets = () => {
         </div>
       </div>
 
+      <AdvancedSearch
+        onSearch={handleSearch}
+        placeholder="Search tickets by title, location, building..."
+        filters={[
+          {
+            key: 'priority',
+            label: 'Priority',
+            options: [
+              { value: 'all', label: 'All Priorities' },
+              { value: 'critical', label: 'Critical' },
+              { value: 'high', label: 'High' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'low', label: 'Low' }
+            ]
+          },
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { value: 'all', label: 'All Status' },
+              { value: 'open', label: 'Open' },
+              { value: 'in-progress', label: 'In Progress' },
+              { value: 'resolved', label: 'Resolved' },
+              { value: 'closed', label: 'Closed' }
+            ]
+          },
+          {
+            key: 'category',
+            label: 'Category',
+            options: [
+              { value: 'all', label: 'All Categories' },
+              { value: 'electrical', label: 'Electrical' },
+              { value: 'plumbing', label: 'Plumbing' },
+              { value: 'hvac', label: 'HVAC' },
+              { value: 'structural', label: 'Structural' },
+              { value: 'equipment', label: 'Equipment' },
+              { value: 'cleaning', label: 'Cleaning' },
+              { value: 'security', label: 'Security' },
+              { value: 'other', label: 'Other' }
+            ]
+          }
+        ]}
+      />
+
       <div className="filters-section">
-        <div className="filter-group">
-          <label htmlFor="priority-filter">Priority</label>
-          <select 
-            id="priority-filter"
-            value={filters.priority}
-            onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
-          >
-            <option value="all">All Priorities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="status-filter">Status</label>
-          <select 
-            id="status-filter"
-            value={filters.status}
-            onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-          >
-            <option value="all">All Status</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-
         <div className="filter-stats">
           <span className="stat-badge">
             <i className="fas fa-ticket-alt"></i>

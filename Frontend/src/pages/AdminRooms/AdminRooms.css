@@ -28,71 +28,57 @@
   margin: 0;
 }
 
-.filters-section {
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
   display: flex;
+  align-items: center;
   gap: 1rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  transition: all 0.2s ease;
 }
 
-.filter-group {
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.5rem;
+}
+
+.stat-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  min-width: 180px;
+  gap: 0.25rem;
 }
 
-.filter-group label {
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-label {
   font-size: 0.85rem;
-  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.filter-group select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-
-.filter-group select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-.filter-stats {
-  display: flex;
-  gap: 1rem;
-  margin-left: auto;
-  flex-wrap: wrap;
-}
-
-.stat-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.stat-badge i {
-  color: var(--primary-color);
 }
 
 .table-container {

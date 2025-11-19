@@ -1,7 +1,9 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink,useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
   const menuItems = [
     { path: '/', label: 'Dashboard', icon: 'fas fa-chart-line', enabled: true },
     { path: '/energy', label: 'Energy Monitoring', icon: 'fas fa-bolt', enabled: true },
@@ -26,7 +28,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" onClick={()=>{navigate("/")}}>
           <span className="logo-icon"><i className="fas fa-graduation-cap"></i></span>
           <span className="logo-text">Smart Campus</span>
         </div>

@@ -26,6 +26,7 @@
   font-size: 1rem;
   color: var(--text-secondary);
   margin: 0;
+  color: white !important;
 }
 
 .btn-primary {
@@ -294,7 +295,7 @@
 .form-group label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white !important;
 }
 
 .form-group input,
@@ -304,7 +305,7 @@
   border-radius: var(--border-radius);
   font-size: 1rem;
   background: var(--bg-primary);
-  color: var(--text-primary);
+  color: white;
   transition: border-color 0.2s ease;
 }
 
@@ -315,7 +316,7 @@
 }
 
 .form-group input::placeholder {
-  color: var(--text-tertiary);
+  color: #9ca3af;
 }
 
 .form-row {

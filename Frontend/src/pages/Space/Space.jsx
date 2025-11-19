@@ -14,11 +14,10 @@ const Space = () => {
 
   useEffect(() => {
     loadInitialData();
+    loadOccupancyData(); // Load occupancy data on mount
   }, []);
 
-  useEffect(() => {
-    loadOccupancyData();
-  }, [filter]);
+  // No need for separate useEffect for filter - we'll filter on the frontend
 
   const loadInitialData = async () => {
     try {
@@ -53,7 +52,7 @@ const Space = () => {
 
   const loadOccupancyData = async () => {
     try {
-      const data = await getSpaceOccupancy(filter);
+      const data = await getSpaceOccupancy('all'); // Always fetch all data
       console.log('Occupancy data:', data);
       console.log('First item:', data[0]);
       
@@ -84,6 +83,11 @@ const Space = () => {
       setOccupancy([]);
     }
   };
+
+  // Filter occupancy data based on selected filter
+  const filteredOccupancy = filter === 'all' 
+    ? occupancy 
+    : occupancy.filter(room => room.status === filter);
 
   const occupancyColumns = [
     {
@@ -255,7 +259,7 @@ const Space = () => {
           
           <SimpleTable 
             columns={occupancyColumns}
-            data={occupancy}
+            data={filteredOccupancy}
           />
         </div>
       </div>
@@ -283,7 +287,7 @@ const Space = () => {
                   <p className="suggestion-description">{suggestion.description}</p>
                   <div className="suggestion-footer">
                     <span className="suggestion-savings">💰 {suggestion.savings}</span>
-                    <button className="btn-suggestion">Review</button>
+                    {/* <button className="btn-suggestion">Review</button> */}
                   </div>
                 </div>
               ))

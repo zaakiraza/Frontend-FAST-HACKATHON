@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../../api/authApi';
+import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -61,10 +62,7 @@ const Login = () => {
     setApiError('');
 
     try {
-      const response = await login({
-        login: formData.email,
-        password: formData.password
-      });
+      const response = await authLogin(formData.email, formData.password);
 
       console.log('Login successful:', response);
       

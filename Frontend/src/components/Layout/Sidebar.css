@@ -23,6 +23,7 @@
 
 .sidebar-logo {
   display: flex;
+  cursor: pointer;
   align-items: center;
   gap: var(--spacing-md);
 }
@@ -119,7 +120,7 @@
   box-shadow: var(--shadow-md);
 }
 
-.nav-link.active::before {
+/* .nav-link.active::before {
   content: '';
   position: absolute;
   left: -var(--spacing-md);
@@ -129,7 +130,7 @@
   height: 70%;
   background-color: var(--text-inverse);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
+} */
 
 .nav-link.disabled {
   opacity: 0.5;

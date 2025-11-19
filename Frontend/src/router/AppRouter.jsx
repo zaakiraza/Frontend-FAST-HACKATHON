@@ -8,14 +8,32 @@ import AdminCampuses from '../pages/AdminCampuses/AdminCampuses';
 import AdminBuildings from '../pages/AdminBuildings/AdminBuildings';
 import AdminRooms from '../pages/AdminRooms/AdminRooms';
 import AdminTickets from '../pages/AdminTickets/AdminTickets';
+import Profile from '../pages/Profile/Profile';
 import Login from '../pages/Login/Login';
 import Signup from '../pages/Signup/Signup';
 import NotFound from '../pages/NotFound/NotFound';
-import { isAuthenticated } from '../api/authApi';
+import { useAuth } from '../context/AuthContext';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '1.5rem',
+        color: 'var(--text-secondary)'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -39,6 +57,7 @@ const AppRouter = () => {
           <Route path="energy" element={<Energy />} />
           <Route path="space" element={<Space />} />
           <Route path="maintenance" element={<Maintenance />} />
+          <Route path="profile" element={<Profile />} />
           
           {/* Admin Routes */}
           <Route path="admin/campuses" element={<AdminCampuses />} />

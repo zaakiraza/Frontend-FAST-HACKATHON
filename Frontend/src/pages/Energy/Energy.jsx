@@ -13,13 +13,48 @@ const Energy = () => {
   const [chartData, setChartData] = useState([]);
   const [anomalies, setAnomalies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalAnomalies, setTotalAnomalies] = useState(0);
+
+  // Helper function to format numbers with units (K, M, B)
+  const formatNumber = (num) => {
+    if (num === null || num === undefined) return '0';
+    const parsedNum = parseFloat(num);
+    if (isNaN(parsedNum)) return '0';
+    const absNum = Math.abs(parsedNum);
+    if (absNum >= 1000000000) {
+      return (parsedNum / 1000000000).toFixed(1) + 'B';
+    } else if (absNum >= 1000000) {
+      return (parsedNum / 1000000).toFixed(1) + 'M';
+    } else if (absNum >= 1000) {
+      return (parsedNum / 1000).toFixed(1) + 'K';
+    }
+    return parsedNum.toFixed(0);
+  };
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+    
+    // Auto-refresh summary and anomalies every 10 seconds
+    const interval = setInterval(() => {
+      loadInitialData();
+    }, 10000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [currentPage]);
 
   useEffect(() => {
     loadChartData();
+    
+    // Auto-refresh chart data every 10 seconds
+    const chartInterval = setInterval(() => {
+      loadChartData();
+    }, 10000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(chartInterval);
   }, [selectedBuilding, timeRange]);
 
   const loadInitialData = async () => {
@@ -27,14 +62,48 @@ const Energy = () => {
       const [summaryData, buildingsData, anomaliesData] = await Promise.all([
         getEnergySummary(),
         getBuildings(),
-        getEnergyAnomalies()
+        getEnergyAnomalies(currentPage, 10)
       ]);
       
       setSummary(summaryData);
       setBuildings(buildingsData);
-      setAnomalies(anomaliesData);
+      
+      // Handle paginated anomalies response
+      if (anomaliesData && typeof anomaliesData === 'object') {
+        // Check for pagination object (new backend format)
+        if (anomaliesData.pagination) {
+          setAnomalies(anomaliesData.data || []);
+          setTotalAnomalies(anomaliesData.pagination.total || 0);
+          setTotalPages(anomaliesData.pagination.totalPages || 1);
+        }
+        // Check for data array with pagination info
+        else if (Array.isArray(anomaliesData)) {
+          setAnomalies(anomaliesData);
+          setTotalAnomalies(anomaliesData.length);
+          setTotalPages(1);
+        } else if (anomaliesData.data && Array.isArray(anomaliesData.data)) {
+          setAnomalies(anomaliesData.data);
+          setTotalAnomalies(anomaliesData.total || anomaliesData.data.length);
+          setTotalPages(anomaliesData.totalPages || Math.ceil((anomaliesData.total || anomaliesData.data.length) / 10));
+        } else if (anomaliesData.anomalies && Array.isArray(anomaliesData.anomalies)) {
+          setAnomalies(anomaliesData.anomalies);
+          setTotalAnomalies(anomaliesData.total || anomaliesData.anomalies.length);
+          setTotalPages(anomaliesData.totalPages || Math.ceil((anomaliesData.total || anomaliesData.anomalies.length) / 10));
+        } else {
+          setAnomalies([]);
+          setTotalAnomalies(0);
+          setTotalPages(1);
+        }
+      } else {
+        setAnomalies([]);
+        setTotalAnomalies(0);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Error loading energy data:', error);
+      setAnomalies([]);
+      setTotalAnomalies(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -42,10 +111,29 @@ const Energy = () => {
 
   const loadChartData = async () => {
     try {
-      const data = await getEnergyTimeSeries(selectedBuilding, timeRange);
-      setChartData(Array.isArray(data) ? data : data.data);
+      console.log('Loading chart data with:', { selectedBuilding, timeRange });
+      const response = await getEnergyTimeSeries(selectedBuilding, timeRange);
+      console.log('Chart data received:', response);
+      
+      // Backend returns { building: "name", data: [...] } when building is selected
+      // or just [...] when all buildings
+      let data = [];
+      if (response && typeof response === 'object') {
+        if (Array.isArray(response)) {
+          data = response;
+        } else if (response.data && Array.isArray(response.data)) {
+          data = response.data;
+        } else if (response.success && response.data) {
+          data = Array.isArray(response.data) ? response.data : [];
+        }
+      }
+      
+      console.log('Processed chart data:', data);
+      setChartData(data);
     } catch (error) {
       console.error('Error loading chart data:', error);
+      // Set empty array instead of showing error
+      setChartData([]);
     }
   };
 
@@ -61,27 +149,23 @@ const Energy = () => {
     {
       header: 'Time',
       accessor: 'timestamp',
-      render: (value) => new Date(value).toLocaleTimeString()
+      render: (value) => new Date(value).toLocaleString()
     },
     {
       header: 'Consumption',
       accessor: 'consumption',
-      render: (value) => `${value.toLocaleString()} kWh`
+      render: (value) => `${formatNumber(value)} kWh`
     },
     {
-      header: 'Deviation',
-      accessor: 'deviation',
-      render: (value, row) => (
-        <span className={`table-badge ${row.severity === 'high' ? 'danger' : row.severity === 'medium' ? 'warning' : 'info'}`}>
-          {value}
-        </span>
-      )
+      header: 'Type',
+      accessor: 'type',
+      render: (value) => value ? value.replace('_', ' ').toUpperCase() : 'N/A'
     },
     {
       header: 'Severity',
       accessor: 'severity',
       render: (value) => (
-        <span className={`table-badge ${value === 'high' ? 'danger' : value === 'medium' ? 'warning' : 'success'}`}>
+        <span className={`table-badge ${value === 'critical' || value === 'high' ? 'danger' : value === 'medium' ? 'warning' : 'success'}`}>
           {value}
         </span>
       )
@@ -106,7 +190,7 @@ const Energy = () => {
       <div className="energy-grid">
         <InfoCard
           title="Total Consumption"
-          value={`${(summary.totalConsumption || 0).toLocaleString()} kWh`}
+          value={`${formatNumber(summary.totalConsumption || 0)} kWh`}
           icon={<i className="fas fa-bolt"></i>}
           subtitle="Last 24 hours"
           color="primary"
@@ -114,7 +198,7 @@ const Energy = () => {
         
         <InfoCard
           title="Total Cost"
-          value={`$${(summary.totalCost || 0).toLocaleString()}`}
+          value={`Rs ${formatNumber(summary.totalCost || 0)}`}
           icon={<i className="fas fa-dollar-sign"></i>}
           subtitle="Estimated billing"
           color="success"
@@ -146,17 +230,17 @@ const Energy = () => {
             <div className="controls-group">
               <select 
                 className="control-select"
-                value={selectedBuilding || ''}
-                onChange={(e) => setSelectedBuilding(e.target.value ? parseInt(e.target.value) : null)}
+                value={selectedBuilding || 'all'}
+                onChange={(e) => setSelectedBuilding(e.target.value === 'all' ? null : e.target.value)}
               >
-                <option value="">All Buildings</option>
+                <option value="all">All Buildings</option>
                 {buildings.map(building => (
-                  <option key={building.id} value={building.id}>
+                  <option key={building.uid || building.id} value={building.uid || building.id}>
                     {building.name}
                   </option>
                 ))}
               </select>
-              
+
               <div className="time-range-buttons">
                 <button 
                   className={`time-btn ${timeRange === 'hourly' ? 'active' : ''}`}
@@ -171,10 +255,10 @@ const Energy = () => {
                   Daily
                 </button>
                 <button 
-                  className={`time-btn ${timeRange === 'weekly' ? 'active' : ''}`}
-                  onClick={() => setTimeRange('weekly')}
+                  className={`time-btn ${timeRange === 'monthly' ? 'active' : ''}`}
+                  onClick={() => setTimeRange('monthly')}
                 >
-                  Weekly
+                  Monthly
                 </button>
               </div>
             </div>
@@ -188,13 +272,35 @@ const Energy = () => {
         <div className="section-card">
           <div className="section-header">
             <h2 className="section-title">Energy Anomalies</h2>
-            <span className="badge-count">{anomalies.length} detected</span>
+            <span className="badge-count">{totalAnomalies} total</span>
           </div>
           
           <SimpleTable 
             columns={anomalyColumns}
             data={anomalies}
           />
+          
+          <div className="pagination">
+            <button 
+              className="pagination-btn" 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <i className="fas fa-chevron-left"></i> Previous
+            </button>
+            
+            <span className="pagination-info">
+              Page {currentPage} of {totalPages} ({totalAnomalies} total)
+            </span>
+            
+            <button 
+              className="pagination-btn" 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next <i className="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -206,7 +312,7 @@ const Energy = () => {
           
           <div className="building-grid">
             {buildings.map(building => (
-              <div key={building.id} className="building-card">
+              <div key={building.uid || building.id} className="building-card">
                 <div className="building-icon"><i className="fas fa-building"></i></div>
                 <div className="building-name">{building.name}</div>
                 <div className="building-status">

@@ -14,6 +14,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadData();
+    
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(() => {
+      loadData();
+    }, 10000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
   }, []);
 
   const loadData = async () => {
@@ -106,9 +114,9 @@ const Dashboard = () => {
             <div className="section-card">
               <div className="section-header">
                 <h2 className="section-title">Weekly Energy Consumption</h2>
-                <div className="section-actions">
+                {/* <div className="section-actions">
                   <button className="btn-outline">View Details</button>
-                </div>
+                </div> */}
               </div>
               {chartData && chartData.length > 0 ? (
                 <LineChart data={chartData} height={250} />

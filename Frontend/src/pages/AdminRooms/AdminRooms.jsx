@@ -3,6 +3,7 @@ import { getRooms, createRoom, updateRoom, deleteRoom, getCampuses, getBuildings
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
+import AdvancedSearch from '../../components/AdvancedSearch/AdvancedSearch';
 import './AdminRooms.css';
 
 const AdminRooms = () => {
@@ -18,6 +19,7 @@ const AdminRooms = () => {
     type: 'all',
     status: 'all'
   });
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     campus_id: '',
     building_id: '',
@@ -68,16 +70,16 @@ const AdminRooms = () => {
     if (room) {
       setEditingRoom(room);
       setFormData({
-        campus_id: room.campus_id || '',
-        building_id: room.building_id || '',
-        room_number: room.room_number,
-        room_name: room.room_name,
-        building: room.building_name || room.building || '',
-        floor: room.floor,
-        room_type: room.room_type,
-        capacity: room.capacity,
-        current_occupancy: room.current_occupancy,
-        status: room.status,
+        campus_id: room.campus_uid || '',
+        building_id: room.building_uid || '',
+        room_number: room.roomNumber || '',
+        room_name: room.name || '',
+        building: room.buildingName || '',
+        floor: room.floor || '1',
+        room_type: room.type || 'classroom',
+        capacity: room.capacity || '',
+        current_occupancy: room.currentOccupancy || 0,
+        status: room.status || 'available',
         scheduled_classes: room.scheduled_classes || [],
         schedule_start: '',
         schedule_end: '',
@@ -85,9 +87,9 @@ const AdminRooms = () => {
         instructor: ''
       });
       // Load buildings for the selected campus
-      if (room.campus_id) {
+      if (room.campus_uid) {
         try {
-          const buildingsData = await getBuildings(room.campus_id);
+          const buildingsData = await getBuildings(room.campus_uid);
           setBuildings(buildingsData);
         } catch (error) {
           console.error('Error loading buildings:', error);
@@ -197,7 +199,7 @@ const AdminRooms = () => {
       delete submitData.instructor;
 
       if (editingRoom) {
-        await updateRoom(editingRoom.room_id, submitData);
+        await updateRoom(editingRoom.uid, submitData);
         showAlert('Room updated successfully', 'success');
       } else {
         await createRoom(submitData);
@@ -223,34 +225,88 @@ const AdminRooms = () => {
   };
 
   const filteredRooms = rooms.filter(room => {
-    // API returns: room, building, capacity, current, status, percentage
+    // Campus filter
+    if (filters.campus !== 'all' && room.campus_uid && room.campus_uid !== filters.campus) return false;
+    
+    // Room type filter
+    if (filters.type !== 'all' && room.type !== filters.type) return false;
+    
+    // Status filter
     if (filters.status !== 'all' && room.status !== filters.status) return false;
+    
+    // Search term filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return (
+        room.roomNumber?.toLowerCase().includes(term) ||
+        room.name?.toLowerCase().includes(term) ||
+        room.buildingName?.toLowerCase().includes(term) ||
+        room.campusName?.toLowerCase().includes(term) ||
+        room.type?.toLowerCase().includes(term)
+      );
+    }
+    
     return true;
   });
 
+  const handleSearch = (term, activeFilters) => {
+    setSearchTerm(term);
+    setFilters(prev => ({
+      ...prev,
+      ...activeFilters
+    }));
+  };
+
   const tableColumns = [
     { 
-      key: 'room', 
-      label: 'Room #',
+      key: 'roomNumber', 
+      label: 'ROOM #',
       render: (value) => value || 'N/A'
     },
-    { key: 'building', label: 'Building' },
+    { 
+      key: 'name', 
+      label: 'NAME',
+      render: (value) => value || 'N/A'
+    },
+    { 
+      key: 'buildingName', 
+      label: 'BUILDING',
+      render: (value, row) => `${value} (${row.buildingCode || ''})`
+    },
+    { 
+      key: 'campusName', 
+      label: 'CAMPUS'
+    },
+    { 
+      key: 'type', 
+      label: 'TYPE',
+      render: (value) => (
+        <span className={`table-badge type-${value}`}>
+          {value ? value.charAt(0).toUpperCase() + value.slice(1).replace('-', ' ') : 'N/A'}
+        </span>
+      )
+    },
+    { 
+      key: 'floor', 
+      label: 'FLOOR'
+    },
     { 
       key: 'capacity', 
-      label: 'Capacity',
+      label: 'CAPACITY',
       render: (value) => value ? value.toLocaleString() : 'N/A'
     },
     { 
-      key: 'current', 
-      label: 'Occupancy',
+      key: 'currentOccupancy', 
+      label: 'OCCUPANCY',
       render: (value, row) => {
-        const percentValue = typeof row.percentage === 'number' ? row.percentage : parseFloat(row.percentage) || 0;
-        const displayValue = Math.round(percentValue);
-        const barWidth = Math.min(Math.max(percentValue, 0), 100);
+        const occupancy = parseInt(value) || 0;
+        const capacity = parseInt(row.capacity) || 0;
+        const rate = parseInt(row.occupancyRate) || 0;
+        const barWidth = Math.min(Math.max(rate, 0), 100);
         
         return (
           <div className="utilization-cell">
-            <span>{value || 0}/{row.capacity || 0} ({displayValue}%)</span>
+            <span>{occupancy}/{capacity} ({rate}%)</span>
             <div className="progress-bar">
               <div 
                 className={`progress-fill progress-${row.status}`}
@@ -263,26 +319,35 @@ const AdminRooms = () => {
     },
     { 
       key: 'status', 
-      label: 'Status',
+      label: 'STATUS',
       render: (value) => (
-        <span className={`table-badge status-${value}`}>{value}</span>
+        <span className={`table-badge status-${value}`}>
+          {value?.toUpperCase()}
+        </span>
       )
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: 'ACTIONS',
       render: (_, row) => (
         <div className="table-actions">
           <button className="btn-icon btn-edit" onClick={() => handleOpenModal(row)} title="Edit">
             <i className="fas fa-edit"></i>
           </button>
-          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.room, row.room)} title="Delete">
+          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.uid, row.name)} title="Delete">
             <i className="fas fa-trash"></i>
           </button>
         </div>
       )
     }
   ];
+
+  const stats = {
+    total: filteredRooms.length,
+    available: filteredRooms.filter(r => r.status === 'available').length,
+    occupied: filteredRooms.filter(r => r.status === 'occupied').length,
+    totalCapacity: filteredRooms.reduce((sum, r) => sum + (parseInt(r.capacity) || 0), 0)
+  };
 
   if (loading) {
     return (
@@ -307,37 +372,79 @@ const AdminRooms = () => {
         </button>
       </div>
 
-      <div className="filters-section">
-        <div className="filter-group">
-          <label htmlFor="status-filter">Status</label>
-          <select 
-            id="status-filter"
-            value={filters.status}
-            onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-          >
-            <option value="all">All Status</option>
-            <option value="available">Available</option>
-            <option value="occupied">Occupied</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="reserved">Reserved</option>
-          </select>
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+            <i className="fas fa-door-open"></i>
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats.total}</span>
+            <span className="stat-label">Total Rooms</span>
+          </div>
         </div>
 
-        <div className="filter-stats">
-          <span className="stat-badge">
-            <i className="fas fa-door-open"></i>
-            {filteredRooms.length} Rooms
-          </span>
-          <span className="stat-badge">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>
+            <i className="fas fa-check-circle"></i>
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats.available}</span>
+            <span className="stat-label">Available</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(249, 115, 22, 0.1)', color: '#f97316' }}>
             <i className="fas fa-users"></i>
-            {filteredRooms.reduce((sum, r) => sum + (r.capacity || 0), 0).toLocaleString()} Total Capacity
-          </span>
-          <span className="stat-badge">
-            <i className="fas fa-user-check"></i>
-            {filteredRooms.reduce((sum, r) => sum + (r.current || 0), 0).toLocaleString()} Current Occupancy
-          </span>
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats.occupied}</span>
+            <span className="stat-label">Occupied</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7' }}>
+            <i className="fas fa-chair"></i>
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats.totalCapacity.toLocaleString()}</span>
+            <span className="stat-label">Total Capacity</span>
+          </div>
         </div>
       </div>
+
+      <AdvancedSearch
+        onSearch={handleSearch}
+        placeholder="Search rooms by number, name, building, campus..."
+        filters={[
+          {
+            key: 'type',
+            label: 'Room Type',
+            options: [
+              { value: 'all', label: 'All Types' },
+              { value: 'classroom', label: 'Classroom' },
+              { value: 'lab', label: 'Laboratory' },
+              { value: 'lecture-hall', label: 'Lecture Hall' },
+              { value: 'auditorium', label: 'Auditorium' },
+              { value: 'office', label: 'Office' },
+              { value: 'library', label: 'Library' },
+              { value: 'other', label: 'Other' }
+            ]
+          },
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { value: 'all', label: 'All Status' },
+              { value: 'available', label: 'Available' },
+              { value: 'occupied', label: 'Occupied' },
+              { value: 'maintenance', label: 'Maintenance' },
+              { value: 'reserved', label: 'Reserved' }
+            ]
+          }
+        ]}
+      />
 
       <div className="table-container">
         <SimpleTable 
@@ -359,7 +466,7 @@ const AdminRooms = () => {
             >
               <option value="">Select Campus</option>
               {campuses.map(campus => (
-                <option key={campus.campus_id} value={campus.campus_id}>
+                <option key={campus.uid || campus.campus_id || campus.id} value={campus.uid || campus.campus_id || campus.id}>
                   {campus.name}
                 </option>
               ))}
@@ -378,8 +485,8 @@ const AdminRooms = () => {
             >
               <option value="">Select Building</option>
               {buildings.map(building => (
-                <option key={building.building_id} value={building.building_id}>
-                  {building.building_name}
+                <option key={building.uid || building.building_id || building.id} value={building.uid || building.building_id || building.id}>
+                  {building.name || building.building_name}
                 </option>
               ))}
             </select>

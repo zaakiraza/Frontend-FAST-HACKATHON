@@ -13,11 +13,7 @@ const AdminCampuses = () => {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    area_sqm: '',
-    building_count: '',
-    total_capacity: '',
-    energy_baseline_kwh: '',
-    status: 'active'
+    total_area: ''
   });
 
   useEffect(() => {
@@ -47,24 +43,16 @@ const AdminCampuses = () => {
     if (campus) {
       setEditingCampus(campus);
       setFormData({
-        name: campus.name,
-        location: campus.location,
-        area_sqm: campus.area_sqm,
-        building_count: campus.building_count,
-        total_capacity: campus.total_capacity,
-        energy_baseline_kwh: campus.energy_baseline_kwh,
-        status: campus.status
+        name: campus.name || '',
+        location: campus.location || '',
+        total_area: campus.total_area || ''
       });
     } else {
       setEditingCampus(null);
       setFormData({
         name: '',
         location: '',
-        area_sqm: '',
-        building_count: '',
-        total_capacity: '',
-        energy_baseline_kwh: '',
-        status: 'active'
+        total_area: ''
       });
     }
     setShowModal(true);
@@ -76,11 +64,7 @@ const AdminCampuses = () => {
     setFormData({
       name: '',
       location: '',
-      area_sqm: '',
-      building_count: '',
-      total_capacity: '',
-      energy_baseline_kwh: '',
-      status: 'active'
+      total_area: ''
     });
   };
 
@@ -102,7 +86,7 @@ const AdminCampuses = () => {
 
     try {
       if (editingCampus) {
-        await updateCampus(editingCampus.campus_id, formData);
+        await updateCampus(editingCampus.uid || editingCampus.campus_id, formData);
         showAlert('Campus updated successfully', 'success');
       } else {
         await createCampus(formData);
@@ -152,7 +136,7 @@ const AdminCampuses = () => {
 
       <div className="campuses-grid">
         {campuses.map((campus) => (
-          <div key={campus.campus_id} className="campus-card">
+          <div key={campus.uid} className="campus-card">
             <div className="campus-card-header">
               <div className="campus-info">
                 <h3 className="campus-name">{campus.name}</h3>
@@ -161,38 +145,19 @@ const AdminCampuses = () => {
                   {campus.location}
                 </p>
               </div>
-              <span className={`status-badge status-${campus.status}`}>
-                {campus.status}
+              <span className={`status-badge status-${campus.status || 'active'}`}>
+                {campus.status || 'active'}
               </span>
             </div>
 
             <div className="campus-stats">
               <div className="stat-item">
-                <i className="fas fa-building"></i>
-                <div className="stat-info">
-                  <span className="stat-label">Buildings</span>
-                  <span className="stat-value">{campus.building_count}</span>
-                </div>
-              </div>
-              <div className="stat-item">
-                <i className="fas fa-users"></i>
-                <div className="stat-info">
-                  <span className="stat-label">Capacity</span>
-                  <span className="stat-value">{campus.total_capacity.toLocaleString()}</span>
-                </div>
-              </div>
-              <div className="stat-item">
                 <i className="fas fa-expand-arrows-alt"></i>
                 <div className="stat-info">
                   <span className="stat-label">Area</span>
-                  <span className="stat-value">{campus.area_sqm.toLocaleString()} m²</span>
-                </div>
-              </div>
-              <div className="stat-item">
-                <i className="fas fa-bolt"></i>
-                <div className="stat-info">
-                  <span className="stat-label">Energy Baseline</span>
-                  <span className="stat-value">{campus.energy_baseline_kwh.toLocaleString()} kWh</span>
+                  <span className="stat-value">
+                    {campus.total_area ? `${campus.total_area.toLocaleString()} m²` : 'N/A'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -207,7 +172,7 @@ const AdminCampuses = () => {
               </button>
               <button 
                 className="btn-delete" 
-                onClick={() => handleDelete(campus.campus_id, campus.name)}
+                onClick={() => handleDelete(campus.uid || campus.campus_id, campus.name)}
               >
                 <i className="fas fa-trash"></i>
                 Delete
@@ -257,74 +222,17 @@ const AdminCampuses = () => {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="area_sqm">Area (m²)</label>
-              <input
-                type="number"
-                id="area_sqm"
-                name="area_sqm"
-                value={formData.area_sqm}
-                onChange={handleInputChange}
-                placeholder="50000"
-                min="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="building_count">Building Count</label>
-              <input
-                type="number"
-                id="building_count"
-                name="building_count"
-                value={formData.building_count}
-                onChange={handleInputChange}
-                placeholder="5"
-                min="0"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="total_capacity">Total Capacity</label>
-              <input
-                type="number"
-                id="total_capacity"
-                name="total_capacity"
-                value={formData.total_capacity}
-                onChange={handleInputChange}
-                placeholder="5000"
-                min="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="energy_baseline_kwh">Energy Baseline (kWh)</label>
-              <input
-                type="number"
-                id="energy_baseline_kwh"
-                name="energy_baseline_kwh"
-                value={formData.energy_baseline_kwh}
-                onChange={handleInputChange}
-                placeholder="45000"
-                min="0"
-              />
-            </div>
-          </div>
-
           <div className="form-group">
-            <label htmlFor="status">Status</label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
+            <label htmlFor="total_area">Total Area (m²)</label>
+            <input
+              type="number"
+              id="total_area"
+              name="total_area"
+              value={formData.total_area}
               onChange={handleInputChange}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="maintenance">Under Maintenance</option>
-            </select>
+              placeholder="50000"
+              min="0"
+            />
           </div>
 
           <div className="form-actions">
