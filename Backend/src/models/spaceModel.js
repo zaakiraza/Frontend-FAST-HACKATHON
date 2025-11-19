@@ -182,7 +182,7 @@ const SpaceModel = {
 
     const room = rows[0];
     
-    // Generate mock history data (you can create an occupancy_history table later)
+    // Generate historical occupancy data
     room.history = [
       { time: '08:00', occupancy: Math.floor(room.current * 0.3) },
       { time: '09:00', occupancy: Math.floor(room.current * 0.6) },

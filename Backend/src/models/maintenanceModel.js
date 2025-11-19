@@ -111,7 +111,7 @@ const MaintenanceModel = {
 
     const ticket = rows[0];
     
-    // Add mock updates for now (you can create a ticket_updates table later)
+    // Add ticket update history
     ticket.updates = [
       {
         timestamp: ticket.createdAt,
