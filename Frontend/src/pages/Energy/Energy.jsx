@@ -66,7 +66,15 @@ const Energy = () => {
       ]);
       
       setSummary(summaryData);
-      setBuildings(buildingsData);
+      
+      // Ensure buildings is always an array
+      if (Array.isArray(buildingsData)) {
+        setBuildings(buildingsData);
+      } else if (buildingsData && buildingsData.data && Array.isArray(buildingsData.data)) {
+        setBuildings(buildingsData.data);
+      } else {
+        setBuildings([]);
+      }
       
       // Handle paginated anomalies response
       if (anomaliesData && typeof anomaliesData === 'object') {
@@ -101,6 +109,7 @@ const Energy = () => {
       }
     } catch (error) {
       console.error('Error loading energy data:', error);
+      setBuildings([]);
       setAnomalies([]);
       setTotalAnomalies(0);
       setTotalPages(1);
@@ -234,7 +243,7 @@ const Energy = () => {
                 onChange={(e) => setSelectedBuilding(e.target.value === 'all' ? null : e.target.value)}
               >
                 <option value="all">All Buildings</option>
-                {buildings.map(building => (
+                {Array.isArray(buildings) && buildings.map(building => (
                   <option key={building.uid || building.id} value={building.uid || building.id}>
                     {building.name}
                   </option>
@@ -311,7 +320,7 @@ const Energy = () => {
           </div>
           
           <div className="building-grid">
-            {buildings.map(building => (
+            {Array.isArray(buildings) && buildings.map(building => (
               <div key={building.uid || building.id} className="building-card">
                 <div className="building-icon"><i className="fas fa-building"></i></div>
                 <div className="building-name">{building.name}</div>

@@ -13,9 +13,16 @@
     "simulator": "node src/simulators/runSimulators.js",
     "simulator:energy": "node src/simulators/runSimulators.js energy",
     "simulator:occupancy": "node src/simulators/runSimulators.js occupancy",
+    "migrate:uid": "node src/migrations/add_uid_columns.js",
+    "migrate:uid:rollback": "node src/migrations/add_uid_columns.js rollback",
     "deploy": "node src/simulators/runSimulators.js --setup && node index.js"
   },
-  "keywords": ["smart-campus", "iot", "energy-monitoring", "occupancy-tracking"],
+  "keywords": [
+    "smart-campus",
+    "iot",
+    "energy-monitoring",
+    "occupancy-tracking"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Smart Campus Management System Backend API with IoT Simulators",
@@ -26,6 +33,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "uuid": "^9.0.1"
   }
 }
