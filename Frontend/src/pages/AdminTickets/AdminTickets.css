@@ -218,7 +218,6 @@
   font-size: 0.7rem;
 }
 
-/* Priority Badges */
 .priority-critical {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
@@ -239,7 +238,6 @@
   color: #94a3b8;
 }
 
-/* Status Badges */
 .status-open {
   background: rgba(249, 115, 22, 0.1);
   color: #f97316;
@@ -298,7 +296,6 @@
   transform: scale(1.1);
 }
 
-/* Form Styles */
 .ticket-form {
   display: flex;
   flex-direction: column;

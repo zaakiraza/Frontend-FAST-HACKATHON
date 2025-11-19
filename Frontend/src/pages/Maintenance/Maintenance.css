@@ -1,4 +1,3 @@
-/* Maintenance Page Styles */
 .maintenance-page {
   max-width: 1400px;
   margin: 0 auto;
@@ -45,7 +44,6 @@
   margin-bottom: var(--spacing-xl);
 }
 
-/* Ticket Specific Styles */
 .ticket-id {
   font-family: 'Courier New', monospace;
   font-weight: 600;
@@ -76,14 +74,12 @@
   font-size: 12px;
 }
 
-/* Form Styles */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-md);
 }
 
-/* Filter Buttons for Maintenance */
 .maintenance-section .filter-buttons {
   display: flex;
   gap: var(--spacing-xs);
@@ -113,7 +109,6 @@
   border-color: var(--primary-color);
 }
 
-/* Ticket Status Indicators */
 .status-timeline {
   display: flex;
   align-items: center;
@@ -134,7 +129,6 @@
   background-color: var(--border-color);
 }
 
-/* Priority Colors */
 .priority-high {
   color: var(--danger-color);
 }
@@ -147,7 +141,6 @@
   color: var(--info-color);
 }
 
-/* Stats Cards */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -175,7 +168,6 @@
   margin-top: var(--spacing-xs);
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .maintenance-grid {
     grid-template-columns: repeat(2, 1fr);

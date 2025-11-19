@@ -105,7 +105,6 @@ const Space = () => {
         <p className="page-subtitle">Monitor and optimize campus space usage</p>
       </div>
 
-      {/* Summary Cards */}
       <div className="space-grid">
         <InfoCard
           title="Total Rooms"
@@ -140,7 +139,6 @@ const Space = () => {
         />
       </div>
 
-      {/* Space Heatmap */}
       <div className="space-section">
         <div className="section-card">
           <div className="section-header">
@@ -175,7 +173,6 @@ const Space = () => {
         </div>
       </div>
 
-      {/* Occupancy Table */}
       <div className="space-section">
         <div className="section-card">
           <div className="section-header">
@@ -215,7 +212,6 @@ const Space = () => {
         </div>
       </div>
 
-      {/* Optimization Suggestions */}
       <div className="space-section">
         <div className="section-card">
           <div className="section-header">

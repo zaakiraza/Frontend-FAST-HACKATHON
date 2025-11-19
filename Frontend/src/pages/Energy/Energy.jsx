@@ -99,7 +99,6 @@ const Energy = () => {
         <p className="page-subtitle">Real-time energy consumption tracking and analysis</p>
       </div>
 
-      {/* Summary Cards */}
       <div className="energy-grid">
         <InfoCard
           title="Total Consumption"
@@ -136,7 +135,6 @@ const Energy = () => {
         />
       </div>
 
-      {/* Energy Chart Section */}
       <div className="energy-section">
         <div className="section-card">
           <div className="section-header">
@@ -182,7 +180,6 @@ const Energy = () => {
         </div>
       </div>
 
-      {/* Anomalies Table */}
       <div className="energy-section">
         <div className="section-card">
           <div className="section-header">
@@ -197,7 +194,6 @@ const Energy = () => {
         </div>
       </div>
 
-      {/* Building Status Grid */}
       <div className="energy-section">
         <div className="section-card">
           <div className="section-header">

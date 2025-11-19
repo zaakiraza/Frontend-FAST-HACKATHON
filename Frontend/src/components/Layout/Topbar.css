@@ -1,4 +1,3 @@
-/* Topbar Styles */
 .topbar {
   height: var(--topbar-height);
   background-color: var(--topbar-bg);
@@ -154,7 +153,6 @@
   color: var(--text-secondary);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .topbar {
     left: 0;

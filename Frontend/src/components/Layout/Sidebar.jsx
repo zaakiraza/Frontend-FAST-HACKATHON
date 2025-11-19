@@ -17,7 +17,6 @@ const Sidebar = ({ isOpen, onClose }) => {
   ];
 
   const handleLinkClick = () => {
-    // Close sidebar on mobile when a link is clicked
     if (window.innerWidth <= 768) {
       onClose();
     }

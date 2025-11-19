@@ -1,4 +1,3 @@
-/* Dashboard Page Styles */
 .dashboard-page {
   max-width: 1400px;
   margin: 0 auto;
@@ -157,7 +156,6 @@
   color: var(--text-primary);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;

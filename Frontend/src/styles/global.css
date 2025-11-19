@@ -1,4 +1,3 @@
-/* Global Styles */
 @import './variables.css';
 
 * {
@@ -27,7 +26,6 @@ body {
   height: 100%;
 }
 
-/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: 1.2;
@@ -56,7 +54,6 @@ a:hover {
   color: var(--primary-hover);
 }
 
-/* Buttons */
 button {
   font-family: inherit;
   cursor: pointer;
@@ -65,7 +62,6 @@ button {
   transition: all var(--transition-fast);
 }
 
-/* Form Elements */
 input, select, textarea {
   font-family: inherit;
   font-size: var(--text-base);
@@ -82,7 +78,6 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--primary-color);
 }
 
-/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -101,7 +96,6 @@ input:focus, select:focus, textarea:focus {
   background: var(--text-secondary);
 }
 
-/* Utility Classes */
 .container {
   width: 100%;
   max-width: 1400px;

@@ -32,7 +32,6 @@ const Dashboard = () => {
         <p className="page-subtitle">Real-time monitoring of smart campus infrastructure</p>
       </div>
 
-      {/* Summary Cards */}
       <div className="dashboard-grid">
         <InfoCard
           title="Energy Consumption"
@@ -73,7 +72,6 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Energy Chart */}
       <div className="dashboard-section">
         <div className="section-card">
           <div className="section-header">
@@ -89,7 +87,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Alerts */}
       <div className="dashboard-section">
         <div className="section-card">
           <div className="section-header">
@@ -109,7 +106,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
       <div className="dashboard-section">
         <div className="quick-stats-grid">
           <div className="stat-item">

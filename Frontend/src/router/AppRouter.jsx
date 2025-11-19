@@ -23,7 +23,6 @@ const AppRouter = () => {
           <Route path="admin/rooms" element={<AdminRooms />} />
           <Route path="admin/tickets" element={<AdminTickets />} />
           
-          {/* Disabled routes - can be uncommented when ready */}
           {/* <Route path="security" element={<ComingSoon page="Security" />} /> */}
           {/* <Route path="mobility" element={<ComingSoon page="Mobility" />} /> */}
           {/* <Route path="connectivity" element={<ComingSoon page="Connectivity" />} /> */}

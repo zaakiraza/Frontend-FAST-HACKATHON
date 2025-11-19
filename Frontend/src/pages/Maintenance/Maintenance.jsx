@@ -14,7 +14,6 @@ const Maintenance = () => {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Form state
   const [formData, setFormData] = useState({
     title: '',
     building: '',
@@ -78,7 +77,6 @@ const Maintenance = () => {
         message: `Ticket ${newTicket.id} created successfully!`
       });
       
-      // Reset form
       setFormData({
         title: '',
         building: '',
@@ -88,7 +86,6 @@ const Maintenance = () => {
         reportedBy: 'Admin User'
       });
       
-      // Auto-dismiss alert
       setTimeout(() => setAlert(null), 5000);
     } catch (error) {
       setAlert({
@@ -174,7 +171,6 @@ const Maintenance = () => {
         </button>
       </div>
 
-      {/* Alert */}
       {alert && (
         <Alert
           type={alert.type}
@@ -184,7 +180,6 @@ const Maintenance = () => {
         />
       )}
 
-      {/* Summary Cards */}
       <div className="maintenance-grid">
         <InfoCard
           title="Open Tickets"
@@ -223,7 +218,6 @@ const Maintenance = () => {
         />
       </div>
 
-      {/* Tickets Table */}
       <div className="maintenance-section">
         <div className="section-card">
           <div className="section-header">
@@ -263,7 +257,6 @@ const Maintenance = () => {
         </div>
       </div>
 
-      {/* Create Ticket Modal */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

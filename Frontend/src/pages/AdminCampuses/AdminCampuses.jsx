@@ -93,7 +93,6 @@ const AdminCampuses = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
     if (!formData.name || !formData.location) {
       showAlert('Please fill in all required fields', 'error');
       return;

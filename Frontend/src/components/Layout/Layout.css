@@ -1,4 +1,3 @@
-/* Layout Styles */
 .layout {
   display: flex;
   height: 100vh;
@@ -36,7 +35,6 @@
   backdrop-filter: blur(2px);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .main-wrapper {
     margin-left: 0;
