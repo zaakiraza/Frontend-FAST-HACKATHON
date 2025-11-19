@@ -64,8 +64,41 @@ app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/space', spaceRoutes);
 app.use('/api/simulator', simulatorRoutes);
 
+// Import and start IoT simulators
+const EnergySensorSimulator = require('./src/simulators/energySensorSimulator');
+const OccupancySensorSimulator = require('./src/simulators/occupancySensorSimulator');
+
+let energySimulator = null;
+let occupancySimulator = null;
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📍 http://localhost:${PORT}`);
+  
+  // Start simulators automatically
+  console.log('\n🔌 Starting IoT Simulators...');
+  
+  energySimulator = new EnergySensorSimulator();
+  occupancySimulator = new OccupancySensorSimulator();
+  
+  energySimulator.start(5);  // Generate energy data every 5 seconds
+  occupancySimulator.start(10); // Generate occupancy data every 10 seconds
+  
+  console.log('✅ Simulators started successfully\n');
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('\n📴 SIGTERM received, shutting down gracefully...');
+  if (energySimulator) energySimulator.stop();
+  if (occupancySimulator) occupancySimulator.stop();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('\n📴 SIGINT received, shutting down gracefully...');
+  if (energySimulator) energySimulator.stop();
+  if (occupancySimulator) occupancySimulator.stop();
+  process.exit(0);
 });

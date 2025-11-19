@@ -27,7 +27,7 @@ const SpaceModel = {
         r.status,
         ROUND((r.current_occupancy / r.capacity) * 100) as percentage
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
     `;
     
     const params = [];
@@ -53,7 +53,7 @@ const SpaceModel = {
         r.capacity,
         r.status
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       ORDER BY r.room_id
     `;
     
@@ -72,7 +72,7 @@ const SpaceModel = {
         b.building_name,
         COUNT(*) as count
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE (r.current_occupancy / r.capacity) < 0.3 AND r.status = 'occupied'
       GROUP BY b.building_name
       HAVING count >= 2
@@ -149,7 +149,7 @@ const SpaceModel = {
         r.status,
         ROUND((r.current_occupancy / r.capacity) * 100) as percentage
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE b.building_name LIKE ? OR b.building_code LIKE ?
       ORDER BY percentage DESC
     `;
@@ -171,7 +171,7 @@ const SpaceModel = {
         r.room_type as type,
         r.floor
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE r.room_number = ? OR r.room_name = ? OR CONCAT(b.building_code, '-', r.room_number) = ?
     `;
     

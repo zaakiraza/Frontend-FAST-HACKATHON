@@ -22,7 +22,7 @@ const EnergyModel = {
   async getBuildings() {
     const query = `
       SELECT 
-        b.building_id as id,
+        b.id,
         CONCAT(c.name, ' - ', b.building_name) as name,
         c.location,
         b.total_rooms,
@@ -97,7 +97,7 @@ const EnergyModel = {
         ea.expected_consumption as expected,
         CONCAT('+', ROUND(((ea.actual_consumption - ea.expected_consumption) / ea.expected_consumption) * 100), '%') as deviation
       FROM energy_anomalies ea
-      JOIN buildings b ON ea.building_id = b.building_id
+      JOIN buildings b ON ea.building_id = b.id
       JOIN campuses c ON b.campus_id = c.campus_id
       WHERE DATE(ea.timestamp) = CURDATE()
       ORDER BY 
@@ -123,10 +123,10 @@ const EnergyModel = {
         SUM(e.cost) as cost,
         AVG(e.efficiency_percentage) as efficiency
       FROM energy_readings e
-      JOIN buildings b ON e.building_id = b.building_id
+      JOIN buildings b ON e.building_id = b.id
       JOIN campuses c ON b.campus_id = c.campus_id
       WHERE e.building_id = ? AND DATE(e.timestamp) = CURDATE()
-      GROUP BY b.building_id, c.name, b.building_name
+      GROUP BY b.id, c.name, b.building_name
     `;
     
     const [rows] = await db.query(query, [buildingId]);
