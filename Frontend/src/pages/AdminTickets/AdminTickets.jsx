@@ -18,8 +18,13 @@ const AdminTickets = () => {
   const [filters, setFilters] = useState({
     priority: 'all',
     status: 'all',
+<<<<<<< HEAD
     search: ''
+=======
+    category: 'all'
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   });
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     campus_id: '',
     building_id: '',
@@ -164,6 +169,7 @@ const AdminTickets = () => {
   };
 
   const filteredTickets = tickets.filter(ticket => {
+<<<<<<< HEAD
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -175,14 +181,43 @@ const AdminTickets = () => {
       if (!matchesSearch) return false;
     }
     
+=======
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     // Priority filter
     if (filters.priority !== 'all' && ticket.priority !== filters.priority) return false;
     
     // Status filter
     if (filters.status !== 'all' && ticket.status !== filters.status) return false;
     
+<<<<<<< HEAD
+=======
+    // Category filter
+    if (filters.category !== 'all' && ticket.category !== filters.category) return false;
+    
+    // Search term filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return (
+        ticket.title?.toLowerCase().includes(term) ||
+        ticket.description?.toLowerCase().includes(term) ||
+        ticket.location?.toLowerCase().includes(term) ||
+        ticket.building?.toLowerCase().includes(term) ||
+        ticket.room?.toLowerCase().includes(term) ||
+        ticket.reported_by?.toLowerCase().includes(term)
+      );
+    }
+    
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     return true;
   });
+
+  const handleSearch = (term, activeFilters) => {
+    setSearchTerm(term);
+    setFilters(prev => ({
+      ...prev,
+      ...activeFilters
+    }));
+  };
 
   const priorityIcons = {
     critical: 'fas fa-exclamation-circle',
@@ -313,12 +348,20 @@ const AdminTickets = () => {
 
       <AdvancedSearch
         onSearch={handleSearch}
+<<<<<<< HEAD
         placeholder="Search tickets by ID, title, building, or location..."
+=======
+        placeholder="Search tickets by title, location, building..."
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
         filters={[
           {
             key: 'priority',
             label: 'Priority',
             options: [
+<<<<<<< HEAD
+=======
+              { value: 'all', label: 'All Priorities' },
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
               { value: 'critical', label: 'Critical' },
               { value: 'high', label: 'High' },
               { value: 'medium', label: 'Medium' },
@@ -329,14 +372,48 @@ const AdminTickets = () => {
             key: 'status',
             label: 'Status',
             options: [
+<<<<<<< HEAD
+=======
+              { value: 'all', label: 'All Status' },
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
               { value: 'open', label: 'Open' },
               { value: 'in-progress', label: 'In Progress' },
               { value: 'resolved', label: 'Resolved' },
               { value: 'closed', label: 'Closed' }
             ]
+<<<<<<< HEAD
           }
         ]}
       />
+=======
+          },
+          {
+            key: 'category',
+            label: 'Category',
+            options: [
+              { value: 'all', label: 'All Categories' },
+              { value: 'electrical', label: 'Electrical' },
+              { value: 'plumbing', label: 'Plumbing' },
+              { value: 'hvac', label: 'HVAC' },
+              { value: 'structural', label: 'Structural' },
+              { value: 'equipment', label: 'Equipment' },
+              { value: 'cleaning', label: 'Cleaning' },
+              { value: 'security', label: 'Security' },
+              { value: 'other', label: 'Other' }
+            ]
+          }
+        ]}
+      />
+
+      <div className="filters-section">
+        <div className="filter-stats">
+          <span className="stat-badge">
+            <i className="fas fa-ticket-alt"></i>
+            {filteredTickets.length} Tickets
+          </span>
+        </div>
+      </div>
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
       <div className="tickets-table-wrapper">
         <SimpleTable 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .theme-toggle {
   background: none;
   border: none;
@@ -26,3 +27,27 @@
 .theme-toggle:active i {
   transform: rotate(360deg);
 }
+=======
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--bg-tertiary);
+  transform: rotate(360deg);
+}
+
+.theme-toggle-btn i {
+  transition: transform 0.3s ease;
+}
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7

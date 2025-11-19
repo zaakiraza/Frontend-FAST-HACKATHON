@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { getStoredUser } from '../../api/authApi';
 import { updateProfile, changePassword } from '../../api/profileApi';
+=======
+import { useAuth } from '../../context/AuthContext';
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 import Alert from '../../components/Alert/Alert';
 import './Profile.css';
 
 const Profile = () => {
+<<<<<<< HEAD
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('personal');
   const [loading, setLoading] = useState(false);
@@ -12,22 +17,38 @@ const Profile = () => {
 
   // Personal Info Form
   const [personalForm, setPersonalForm] = useState({
+=======
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('personal');
+  const [alert, setAlert] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const [personalInfo, setPersonalInfo] = useState({
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     first_name: '',
     last_name: '',
     email: '',
     phone: ''
   });
 
+<<<<<<< HEAD
   // Password Form
   const [passwordForm, setPasswordForm] = useState({
     current_password: '',
     new_password: '',
     confirm_password: ''
+=======
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   });
 
   const [passwordErrors, setPasswordErrors] = useState({});
 
   useEffect(() => {
+<<<<<<< HEAD
     const storedUser = getStoredUser();
     if (storedUser) {
       setUser(storedUser);
@@ -46,10 +67,31 @@ const Profile = () => {
       ...prev,
       [name]: value
     }));
+=======
+    if (user) {
+      setPersonalInfo({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [user]);
+
+  const showAlert = (message, type = 'info') => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert(null), 5000);
+  };
+
+  const handlePersonalInfoChange = (e) => {
+    const { name, value } = e.target;
+    setPersonalInfo(prev => ({ ...prev, [name]: value }));
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
+<<<<<<< HEAD
     setPasswordForm(prev => ({
       ...prev,
       [name]: value
@@ -60,11 +102,19 @@ const Profile = () => {
         ...prev,
         [name]: ''
       }));
+=======
+    setPasswordData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear errors for this field
+    if (passwordErrors[name]) {
+      setPasswordErrors(prev => ({ ...prev, [name]: '' }));
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     }
   };
 
   const validatePassword = () => {
     const errors = {};
+<<<<<<< HEAD
 
     if (!passwordForm.current_password) {
       errors.current_password = 'Current password is required';
@@ -99,6 +149,42 @@ const Profile = () => {
       setAlert({ type: 'success', message: 'Profile updated successfully!' });
     } catch (error) {
       setAlert({ type: 'error', message: error.message || 'Failed to update profile' });
+=======
+    
+    if (!passwordData.currentPassword) {
+      errors.currentPassword = 'Current password is required';
+    }
+    
+    if (!passwordData.newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (passwordData.newPassword.length < 6) {
+      errors.newPassword = 'Password must be at least 6 characters';
+    } else if (!/[A-Z]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain at least one uppercase letter';
+    } else if (!/[a-z]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain at least one lowercase letter';
+    } else if (!/[0-9]/.test(passwordData.newPassword)) {
+      errors.newPassword = 'Password must contain at least one number';
+    }
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+    
+    return errors;
+  };
+
+  const handlePersonalInfoSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      // TODO: Implement actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      showAlert('Profile updated successfully', 'success');
+    } catch (error) {
+      showAlert(error.message || 'Failed to update profile', 'error');
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     } finally {
       setLoading(false);
     }
@@ -107,6 +193,7 @@ const Profile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
+<<<<<<< HEAD
     if (!validatePassword()) {
       return;
     }
@@ -127,17 +214,43 @@ const Profile = () => {
       });
     } catch (error) {
       setAlert({ type: 'error', message: error.message || 'Failed to change password' });
+=======
+    const errors = validatePassword();
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      // TODO: Implement actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      showAlert('Password changed successfully', 'success');
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      showAlert(error.message || 'Failed to change password', 'error');
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     } finally {
       setLoading(false);
     }
   };
 
   if (!user) {
+<<<<<<< HEAD
     return <div className="profile-loading">Loading profile...</div>;
+=======
+    return <div className="loading-page">Loading...</div>;
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   }
 
   return (
     <div className="profile-page">
+<<<<<<< HEAD
       <div className="profile-header">
         <div className="profile-header-content">
           <div className="profile-avatar-large">
@@ -192,11 +305,91 @@ const Profile = () => {
                     name="first_name"
                     value={personalForm.first_name}
                     onChange={handlePersonalChange}
+=======
+      {alert && <Alert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
+      
+      <div className="page-header">
+        <h1 className="page-title">My Profile</h1>
+        <p className="page-subtitle">Manage your account settings and preferences</p>
+      </div>
+
+      <div className="profile-container">
+        <div className="profile-sidebar">
+          <div className="profile-avatar">
+            <div className="avatar-circle">
+              <i className="fas fa-user"></i>
+            </div>
+            <h3>{user.first_name} {user.last_name}</h3>
+            <p className="user-email">{user.email}</p>
+            <span className="user-role-badge">
+              {user.roles?.[0]?.display_name || 'User'}
+            </span>
+          </div>
+
+          <div className="profile-tabs">
+            <button
+              className={`tab-btn ${activeTab === 'personal' ? 'active' : ''}`}
+              onClick={() => setActiveTab('personal')}
+            >
+              <i className="fas fa-user-circle"></i>
+              Personal Information
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
+              onClick={() => setActiveTab('security')}
+            >
+              <i className="fas fa-lock"></i>
+              Security
+            </button>
+          </div>
+        </div>
+
+        <div className="profile-content">
+          {activeTab === 'personal' && (
+            <div className="tab-content">
+              <h2>Personal Information</h2>
+              <form onSubmit={handlePersonalInfoSubmit} className="profile-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="first_name">First Name</label>
+                    <input
+                      type="text"
+                      id="first_name"
+                      name="first_name"
+                      value={personalInfo.first_name}
+                      onChange={handlePersonalInfoChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="last_name">Last Name</label>
+                    <input
+                      type="text"
+                      id="last_name"
+                      name="last_name"
+                      value={personalInfo.last_name}
+                      onChange={handlePersonalInfoChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={personalInfo.email}
+                    onChange={handlePersonalInfoChange}
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
                     required
                   />
                 </div>
 
                 <div className="form-group">
+<<<<<<< HEAD
                   <label htmlFor="last_name">
                     <i className="fas fa-user"></i>
                     Last Name
@@ -344,6 +537,98 @@ const Profile = () => {
                 </button>
               </div>
             </form>
+=======
+                  <label htmlFor="phone">Phone Number</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={personalInfo.phone}
+                    onChange={handlePersonalInfoChange}
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="tab-content">
+              <h2>Change Password</h2>
+              <form onSubmit={handlePasswordSubmit} className="profile-form">
+                <div className="form-group">
+                  <label htmlFor="currentPassword">Current Password</label>
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    name="currentPassword"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.currentPassword ? 'error' : ''}
+                  />
+                  {passwordErrors.currentPassword && (
+                    <span className="error-message">{passwordErrors.currentPassword}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="newPassword">New Password</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.newPassword ? 'error' : ''}
+                  />
+                  {passwordErrors.newPassword && (
+                    <span className="error-message">{passwordErrors.newPassword}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirm New Password</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.confirmPassword ? 'error' : ''}
+                  />
+                  {passwordErrors.confirmPassword && (
+                    <span className="error-message">{passwordErrors.confirmPassword}</span>
+                  )}
+                </div>
+
+                <div className="password-requirements">
+                  <h4>Password Requirements:</h4>
+                  <ul>
+                    <li className={passwordData.newPassword.length >= 6 ? 'valid' : ''}>
+                      At least 6 characters
+                    </li>
+                    <li className={/[A-Z]/.test(passwordData.newPassword) ? 'valid' : ''}>
+                      One uppercase letter
+                    </li>
+                    <li className={/[a-z]/.test(passwordData.newPassword) ? 'valid' : ''}>
+                      One lowercase letter
+                    </li>
+                    <li className={/[0-9]/.test(passwordData.newPassword) ? 'valid' : ''}>
+                      One number
+                    </li>
+                  </ul>
+                </div>
+
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Changing Password...' : 'Change Password'}
+                </button>
+              </form>
+            </div>
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
           )}
         </div>
       </div>

@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { API_BASE_URL } from '../../config/apiConfig';
 import { useAuth } from '../../context/AuthContext';
 import PermissionGate from '../../components/PermissionGate/PermissionGate';
+=======
+import { getBuildings, createBuilding, updateBuilding, deleteBuilding, getCampuses } from '../../api/buildingApi';
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
@@ -19,11 +23,11 @@ const AdminBuildings = () => {
     status: 'all'
   });
   const [formData, setFormData] = useState({
-    campus_id: '',
-    building_name: '',
-    building_code: '',
-    floor_count: '',
-    total_capacity: '',
+    campus_uid: '',
+    name: '',
+    code: '',
+    totalRooms: '',
+    totalCapacity: '',
     status: 'active'
   });
 
@@ -35,15 +39,13 @@ const AdminBuildings = () => {
     try {
       setLoading(true);
       
-      // Use existing energy/buildings endpoint for buildings data
-      const buildingsRes = await fetch(`${API_BASE_URL}/energy/buildings`);
-      const buildingsData = await buildingsRes.json();
+      const [buildingsData, campusesData] = await Promise.all([
+        getBuildings(),
+        getCampuses().catch(() => [])
+      ]);
       
-      // Campus data not available - no endpoint exists
-      const buildings = Array.isArray(buildingsData) ? buildingsData : buildingsData.data || [];
-      
-      setBuildings(buildings);
-      setCampuses([]); // No campus endpoint available
+      setBuildings(Array.isArray(buildingsData) ? buildingsData : buildingsData.data || []);
+      setCampuses(Array.isArray(campusesData) ? campusesData : []);
     } catch (error) {
       console.error('Error loading data:', error);
       showAlert('Failed to load buildings data', 'error');
@@ -63,21 +65,21 @@ const AdminBuildings = () => {
     if (building) {
       setEditingBuilding(building);
       setFormData({
-        campus_id: building.campus_id || '',
-        building_name: building.building_name || '',
-        building_code: building.building_code || '',
-        floor_count: building.floor_count || '',
-        total_capacity: building.total_capacity || '',
+        campus_uid: building.campus_uid || building.campus_id || '',
+        name: building.name || '',
+        code: building.code || '',
+        totalRooms: building.totalRooms || '',
+        totalCapacity: building.totalCapacity || '',
         status: building.status || 'active'
       });
     } else {
       setEditingBuilding(null);
       setFormData({
-        campus_id: '',
-        building_name: '',
-        building_code: '',
-        floor_count: '',
-        total_capacity: '',
+        campus_uid: campuses.length > 0 ? (campuses[0].uid || campuses[0].id || '') : '',
+        name: '',
+        code: '',
+        totalRooms: '',
+        totalCapacity: '',
         status: 'active'
       });
     }
@@ -87,6 +89,14 @@ const AdminBuildings = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingBuilding(null);
+    setFormData({
+      campus_uid: campuses.length > 0 ? (campuses[0].uid || campuses[0].id || '') : '',
+      name: '',
+      code: '',
+      totalRooms: '',
+      totalCapacity: '',
+      status: 'active'
+    });
   };
 
   const handleInputChange = (e) => {
@@ -100,27 +110,46 @@ const AdminBuildings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.building_name || !formData.building_code) {
+    if (!formData.name || !formData.code || !formData.campus_uid) {
       showAlert('Please fill in all required fields', 'error');
       return;
     }
 
-    // Backend doesn't have admin/buildings CRUD endpoints yet
-    showAlert('Building creation/update not implemented on backend. Contact backend team.', 'error');
+    try {
+      if (editingBuilding) {
+        await updateBuilding(editingBuilding.uid, formData);
+        showAlert('Building updated successfully', 'success');
+      } else {
+        await createBuilding(formData);
+        showAlert('Building created successfully', 'success');
+      }
+      handleCloseModal();
+      loadData();
+    } catch (error) {
+      showAlert(error.message || 'Failed to save building', 'error');
+    }
   };
 
   const handleDelete = async (buildingId, buildingName) => {
     if (window.confirm(`Are you sure you want to delete "${buildingName}"?`)) {
-      // Backend doesn't have admin/buildings DELETE endpoint yet
-      showAlert('Building deletion not implemented on backend. Contact backend team.', 'error');
+      try {
+        await deleteBuilding(buildingId);
+        showAlert('Building deleted successfully', 'success');
+        loadData();
+      } catch (error) {
+        showAlert(error.message || 'Failed to delete building', 'error');
+      }
     }
   };
 
   const filteredBuildings = buildings.filter(building => {
-    // Since energy/buildings API doesn't return status field, assume all are active
-    // Filter would work if status field is added to backend response
+    // Campus filter using campus_uid
+    if (filters.campus !== 'all' && building.campus_uid && building.campus_uid !== filters.campus) return false;
+    
+    // Status filter
     const buildingStatus = building.status || 'active';
     if (filters.status !== 'all' && buildingStatus !== filters.status) return false;
+    
     return true;
   });
 
@@ -131,6 +160,7 @@ const AdminBuildings = () => {
       render: (value) => value || 'N/A'
     },
     { 
+<<<<<<< HEAD
       key: 'location', 
       label: 'Location',
       render: (value) => value || 'N/A'
@@ -144,12 +174,42 @@ const AdminBuildings = () => {
       key: 'total_capacity', 
       label: 'Total Capacity',
       render: (value) => value ? value.toLocaleString() : 0
+=======
+      key: 'code', 
+      label: 'Building Code',
+      render: (value) => value || 'N/A'
+    },
+    { 
+      key: 'campusName', 
+      label: 'Campus',
+      render: (value) => value || 'N/A'
+    },
+    { 
+      key: 'totalRooms', 
+      label: 'Total Rooms',
+      render: (value) => value || 0
+    },
+    { 
+      key: 'totalCapacity', 
+      label: 'Capacity',
+      render: (value) => value ? value.toLocaleString() : 0
+    },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (value) => (
+        <span className={`table-badge status-${value || 'active'}`}>
+          {value || 'active'}
+        </span>
+      )
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     },
     { 
       key: 'actions', 
       label: 'Actions',
       render: (_, row) => (
         <div className="table-actions">
+<<<<<<< HEAD
           <PermissionGate permissions={["space.view", "maintenance.update"]} requireAll={false}>
             <button 
               className="btn-icon btn-edit" 
@@ -168,6 +228,22 @@ const AdminBuildings = () => {
               <i className="fas fa-trash"></i>
             </button>
           </PermissionGate>
+=======
+          <button 
+            className="btn-icon btn-edit" 
+            onClick={() => handleOpenModal(row)}
+            title="Edit"
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+          <button 
+            className="btn-icon btn-delete" 
+            onClick={() => handleDelete(row.uid, row.name)}
+            title="Delete"
+          >
+            <i className="fas fa-trash"></i>
+          </button>
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
         </div>
       )
     }
@@ -194,6 +270,22 @@ const AdminBuildings = () => {
       </div>
 
       <div className="filters-bar">
+        <div className="filter-group">
+          <label htmlFor="campus-filter">Campus</label>
+          <select 
+            id="campus-filter"
+            value={filters.campus}
+            onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
+          >
+            <option value="all">All Campuses</option>
+            {campuses.map(campus => (
+              <option key={campus.uid || campus.campus_id || campus.id} value={(campus.uid || campus.campus_id || campus.id)?.toString()}>
+                {campus.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="filter-group">
           <label htmlFor="status-filter">Status</label>
           <select 
@@ -225,19 +317,32 @@ const AdminBuildings = () => {
 
       <Modal isOpen={showModal} onClose={handleCloseModal} title={editingBuilding ? 'Edit Building' : 'Add New Building'}>
         <form onSubmit={handleSubmit} className="building-form">
-          <div className="alert alert-info">
-            <i className="fas fa-info-circle"></i>
-            Building creation/update requires backend admin endpoints
+          <div className="form-group">
+            <label htmlFor="campus_uid">Campus *</label>
+            <select
+              id="campus_uid"
+              name="campus_uid"
+              value={formData.campus_uid}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Campus</option>
+              {campuses.map(campus => (
+                <option key={campus.uid || campus.id} value={campus.uid || campus.id}>
+                  {campus.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="building_name">Building Name *</label>
+              <label htmlFor="name">Building Name *</label>
               <input
                 type="text"
-                id="building_name"
-                name="building_name"
-                value={formData.building_name}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 placeholder="e.g., Engineering Block"
                 required
@@ -245,12 +350,12 @@ const AdminBuildings = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="building_code">Building Code *</label>
+              <label htmlFor="code">Building Code *</label>
               <input
                 type="text"
-                id="building_code"
-                name="building_code"
-                value={formData.building_code}
+                id="code"
+                name="code"
+                value={formData.code}
                 onChange={handleInputChange}
                 placeholder="e.g., ENG-A"
                 required
@@ -260,25 +365,25 @@ const AdminBuildings = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="floor_count">Floor Count</label>
+              <label htmlFor="totalRooms">Total Rooms</label>
               <input
                 type="number"
-                id="floor_count"
-                name="floor_count"
-                value={formData.floor_count}
+                id="totalRooms"
+                name="totalRooms"
+                value={formData.totalRooms}
                 onChange={handleInputChange}
-                min="1"
-                placeholder="e.g., 5"
+                min="0"
+                placeholder="e.g., 20"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="total_capacity">Total Capacity</label>
+              <label htmlFor="totalCapacity">Total Capacity</label>
               <input
                 type="number"
-                id="total_capacity"
-                name="total_capacity"
-                value={formData.total_capacity}
+                id="totalCapacity"
+                name="totalCapacity"
+                value={formData.totalCapacity}
                 onChange={handleInputChange}
                 min="0"
                 placeholder="e.g., 1000"
@@ -304,7 +409,7 @@ const AdminBuildings = () => {
             <button type="button" className="btn-secondary" onClick={handleCloseModal}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled>
+            <button type="submit" className="btn-primary">
               <i className="fas fa-save"></i> {editingBuilding ? 'Update' : 'Create'} Building
             </button>
           </div>

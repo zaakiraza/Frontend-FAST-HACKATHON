@@ -4,11 +4,16 @@ import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import './Topbar.css';
 
 const Topbar = ({ onMenuToggle }) => {
+<<<<<<< HEAD
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+=======
+  const { user, logout: authLogout } = useAuth();
+  const navigate = useNavigate();
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
   const handleLogout = () => {
-    logout();
+    authLogout();
     navigate('/login');
   };
 
@@ -27,7 +32,11 @@ const Topbar = ({ onMenuToggle }) => {
         </div>
 
         <div className="topbar-item">
+<<<<<<< HEAD
           <div className="user-profile" onClick={() => navigate('/profile')}>
+=======
+          <div className="user-profile" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
             <div className="user-avatar">
               <span><i className="fas fa-user"></i></span>
             </div>
@@ -36,7 +45,11 @@ const Topbar = ({ onMenuToggle }) => {
                 {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || user.email : 'User'}
               </span>
               <span className="user-role">
+<<<<<<< HEAD
                 {user?.roles?.[0]?.display_name || user?.roles?.[0]?.name || 'User'}
+=======
+                {user?.roles?.[0]?.display_name || 'System Administrator'}
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
               </span>
             </div>
           </div>

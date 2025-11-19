@@ -32,17 +32,28 @@ export async function getBuildings() {
 
 // Get energy time series data
 export async function getEnergyTimeSeries(buildingId = null, timeRange = 'hourly') {
-  const params = new URLSearchParams();
-  if (buildingId) params.append('building_id', buildingId);
-  if (timeRange) params.append('time_range', timeRange);
-  const url = `/energy/timeseries${params.toString() ? '?' + params.toString() : ''}`;
-  const response = await apiCall(url);
-  return response;
+  try {
+    const params = new URLSearchParams();
+    if (buildingId) params.append('buildingId', buildingId);
+    if (timeRange) params.append('timeRange', timeRange);
+    const url = `/energy/timeseries${params.toString() ? '?' + params.toString() : ''}`;
+    console.log('Requesting energy timeseries:', url, { buildingId, timeRange });
+    const response = await apiCall(url);
+    console.log('Energy timeseries response:', response);
+    return response;
+  } catch (error) {
+    console.error('Energy timeseries API error:', error);
+    // Return empty array instead of throwing error
+    return [];
+  }
 }
 
 // Get energy anomalies
-export async function getEnergyAnomalies() {
-  const response = await apiCall('/energy/anomalies');
+export async function getEnergyAnomalies(page = 1, limit = 10) {
+  const params = new URLSearchParams();
+  params.append('page', page);
+  params.append('limit', limit);
+  const response = await apiCall(`/energy/anomalies?${params.toString()}`);
   return response;
 }
 

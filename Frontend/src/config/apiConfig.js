@@ -97,3 +97,12 @@ export const apiCall = async (endpoint, options = {}) => {
 
   return response.json();
 };
+
+// Default export for apiConfig
+export default {
+  BASE_URL: API_BASE_URL,
+  ENDPOINTS: API_ENDPOINTS,
+  USE_MOCK: USE_MOCK_API,
+  buildUrl,
+  apiCall
+};

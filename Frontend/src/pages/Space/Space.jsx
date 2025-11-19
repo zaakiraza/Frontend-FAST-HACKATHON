@@ -15,11 +15,16 @@ const Space = () => {
 
   useEffect(() => {
     loadInitialData();
+    loadOccupancyData(); // Load occupancy data on mount
   }, []);
 
+<<<<<<< HEAD
   useEffect(() => {
     applyFilter();
   }, [filter, allOccupancyData]);
+=======
+  // No need for separate useEffect for filter - we'll filter on the frontend
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
   const loadInitialData = async () => {
     try {
@@ -43,6 +48,27 @@ const Space = () => {
       ]);
       
       setSummary(summaryData);
+<<<<<<< HEAD
+=======
+      setHeatmap(heatmapData);
+      setSuggestions(suggestionsData);
+    } catch (error) {
+      console.error('Error loading space data:', error);
+      // Set default values to prevent crashes
+      setSummary({ totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 });
+      setHeatmap([]);
+      setSuggestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadOccupancyData = async () => {
+    try {
+      const data = await getSpaceOccupancy('all'); // Always fetch all data
+      console.log('Occupancy data:', data);
+      console.log('First item:', data[0]);
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
       
       // Transform occupancy data to add calculated status
       const transformedData = occupancyData.map(room => {
@@ -88,6 +114,11 @@ const Space = () => {
       setOccupancy(filtered);
     }
   };
+
+  // Filter occupancy data based on selected filter
+  const filteredOccupancy = filter === 'all' 
+    ? occupancy 
+    : occupancy.filter(room => room.status === filter);
 
   const occupancyColumns = [
     {
@@ -259,7 +290,7 @@ const Space = () => {
           
           <SimpleTable 
             columns={occupancyColumns}
-            data={occupancy}
+            data={filteredOccupancy}
           />
         </div>
       </div>

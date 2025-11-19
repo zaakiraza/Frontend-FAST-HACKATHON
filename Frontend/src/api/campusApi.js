@@ -1,13 +1,21 @@
 // Campus API
-import { API_BASE_URL } from '../config/apiConfig';
+import apiConfig from '../config/apiConfig';
+
+const API_BASE_URL = apiConfig.BASE_URL;
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
 
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers: getAuthHeaders(),
     ...options,
   });
 
@@ -20,38 +28,54 @@ const apiCall = async (endpoint, options = {}) => {
 };
 
 export const getCampuses = async () => {
-  // No campus endpoint exists - return empty array
-  // Backend team needs to implement /api/campus or /api/admin/campuses
-  return [];
+  try {
+    const response = await apiCall('/campuses');
+    return response.data || response;
+  } catch (error) {
+    console.warn('Campus endpoint not available, returning empty array');
+    return [];
+  }
 };
 
 export const getCampusById = async (campusId) => {
-  return null;
+  try {
+    const response = await apiCall(`/campuses/${campusId}`);
+    return response.data || response;
+  } catch (error) {
+    console.warn('Campus endpoint not available');
+    return null;
+  }
 };
 
 export const createCampus = async (campusData) => {
-  throw new Error('Campus creation not implemented on backend. Contact backend team.');
+  const response = await apiCall('/campuses', {
+    method: 'POST',
+    body: JSON.stringify(campusData),
+  });
+  return response.data || response;
 };
 
 export const updateCampus = async (campusId, campusData) => {
-  throw new Error('Campus update not implemented on backend. Contact backend team.');
+  const response = await apiCall(`/campuses/${campusId}`, {
+    method: 'PUT',
+    body: JSON.stringify(campusData),
+  });
+  return response.data || response;
 };
 
 export const deleteCampus = async (campusId) => {
-  throw new Error('Campus deletion not implemented on backend. Contact backend team.');
+  const response = await apiCall(`/campuses/${campusId}`, {
+    method: 'DELETE',
+  });
+  return response;
 };
 
-export const getCampusStats = async () => {
-  // Since no campus endpoint exists, calculate from buildings
-  const buildingsResponse = await apiCall('/energy/buildings');
-  const buildings = Array.isArray(buildingsResponse) ? buildingsResponse : buildingsResponse.data || [];
-  
-  return {
-    total_campuses: 0,
-    active_campuses: 0,
-    total_buildings: buildings.length,
-    total_capacity: 0,
-    total_area_sqm: 0,
-    total_energy_baseline: buildings.reduce((sum, b) => sum + (b.energy_consumption || 0), 0)
-  };
+export const getCampusStats = async (campusId) => {
+  try {
+    const response = await apiCall(`/campuses/${campusId}/stats`);
+    return response.data || response;
+  } catch (error) {
+    console.warn('Campus stats endpoint not available');
+    return null;
+  }
 };

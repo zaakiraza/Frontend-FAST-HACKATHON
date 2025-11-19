@@ -9,17 +9,37 @@ import AdminCampuses from '../pages/AdminCampuses/AdminCampuses';
 import AdminBuildings from '../pages/AdminBuildings/AdminBuildings';
 import AdminRooms from '../pages/AdminRooms/AdminRooms';
 import AdminTickets from '../pages/AdminTickets/AdminTickets';
+import Profile from '../pages/Profile/Profile';
 import Login from '../pages/Login/Login';
 import Signup from '../pages/Signup/Signup';
 import NotFound from '../pages/NotFound/NotFound';
+<<<<<<< HEAD
 import Profile from '../pages/Profile/Profile';
+=======
+import { useAuth } from '../context/AuthContext';
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
   if (loading) {
+<<<<<<< HEAD
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+=======
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '1.5rem',
+        color: 'var(--text-secondary)'
+      }}>
+        Loading...
+      </div>
+    );
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   }
   
   if (!isAuthenticated) {
@@ -46,6 +66,7 @@ const AppRouter = () => {
           <Route path="energy" element={<Energy />} />
           <Route path="space" element={<Space />} />
           <Route path="maintenance" element={<Maintenance />} />
+          <Route path="profile" element={<Profile />} />
           
           {/* Profile */}
           <Route path="profile" element={<Profile />} />

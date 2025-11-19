@@ -1,5 +1,9 @@
 import { useState } from 'react';
+<<<<<<< HEAD
 import { Link, useNavigate } from 'react-router-dom';
+=======
+import { useNavigate, Link } from 'react-router-dom';
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
@@ -62,7 +66,11 @@ const Login = () => {
     setApiError('');
 
     try {
+<<<<<<< HEAD
       const result = await authLogin(formData.email, formData.password);
+=======
+      const response = await authLogin(formData.email, formData.password);
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
       if (result.success) {
         console.log('Login successful');

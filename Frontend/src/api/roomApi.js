@@ -1,12 +1,20 @@
 // Room API
-import { API_BASE_URL } from '../config/apiConfig';
+import apiConfig from '../config/apiConfig';
+
+const API_BASE_URL = apiConfig.BASE_URL;
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
 
 const apiCall = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers: getAuthHeaders(),
     ...options,
   });
 
@@ -19,39 +27,96 @@ const apiCall = async (endpoint, options = {}) => {
 };
 
 export const getRooms = async (filters = {}) => {
-  // Use existing space API endpoint
-  const response = await apiCall('/space/occupancy');
-  return Array.isArray(response) ? response : response.data || [];
+  try {
+    const endpoint = filters.buildingId ? `/rooms?buildingId=${filters.buildingId}` : '/rooms';
+    const response = await apiCall(endpoint);
+    return response.data || response;
+  } catch (error) {
+    // Fallback to existing space API endpoint
+    console.warn('Rooms endpoint not available, using space API');
+    const response = await apiCall('/space/occupancy');
+    return Array.isArray(response) ? response : response.data || [];
+  }
 };
 
 export const getRoomById = async (roomId) => {
-  // Get all rooms and filter by ID
-  const rooms = await getRooms();
-  return rooms.find(room => room.id === parseInt(roomId));
+  try {
+    const response = await apiCall(`/rooms/${roomId}`);
+    return response.data || response;
+  } catch (error) {
+    console.warn('Room endpoint not available');
+    return null;
+  }
 };
 
 export const getCampuses = async () => {
-  // No campus endpoint - return mock for now
-  return [];
+  try {
+    const response = await apiCall('/campuses');
+    return response.data || response;
+  } catch (error) {
+    console.warn('Campuses endpoint not available');
+    return [];
+  }
 };
 
 export const getBuildings = async (campusId = null) => {
-  // Use existing energy API endpoint for buildings
-  const response = await apiCall('/energy/buildings');
-  return Array.isArray(response) ? response : response.data || [];
+  try {
+    const endpoint = campusId ? `/buildings?campusUid=${campusId}` : '/buildings';
+    const response = await apiCall(endpoint);
+    return response.data || response;
+  } catch (error) {
+    // Fallback to energy API
+    console.warn('Buildings endpoint not available, using energy API');
+    const response = await apiCall('/energy/buildings');
+    return Array.isArray(response) ? response : response.data || [];
+  }
 };
 
 export const createRoom = async (roomData) => {
-  // Backend doesn't have admin endpoints yet
-  throw new Error('Room creation not implemented on backend. Contact backend team.');
+  // Map frontend field names to backend expected names
+  const payload = {
+    roomNumber: roomData.room_number,
+    name: roomData.room_name,
+    building_uid: roomData.building_id, // Backend model uses building_uid
+    type: roomData.room_type,
+    floor: roomData.floor,
+    capacity: roomData.capacity,
+    currentOccupancy: roomData.current_occupancy,
+    status: roomData.status
+  };
+  
+  const response = await apiCall('/rooms', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return response.data || response;
 };
 
 export const updateRoom = async (roomId, roomData) => {
-  throw new Error('Room update not implemented on backend. Contact backend team.');
+  // Map frontend field names to backend expected names
+  const payload = {
+    roomNumber: roomData.room_number,
+    name: roomData.room_name,
+    building_uid: roomData.building_id, // Backend model uses building_uid
+    type: roomData.room_type,
+    floor: roomData.floor,
+    capacity: roomData.capacity,
+    currentOccupancy: roomData.current_occupancy,
+    status: roomData.status
+  };
+  
+  const response = await apiCall(`/rooms/${roomId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  return response.data || response;
 };
 
 export const deleteRoom = async (roomId) => {
-  throw new Error('Room deletion not implemented on backend. Contact backend team.');
+  const response = await apiCall(`/rooms/${roomId}`, {
+    method: 'DELETE',
+  });
+  return response;
 };
 
 export const getRoomStats = async (campusId = null) => {

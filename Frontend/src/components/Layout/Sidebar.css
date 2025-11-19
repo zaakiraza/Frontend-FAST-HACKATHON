@@ -24,6 +24,7 @@
 
 .sidebar-logo {
   display: flex;
+  cursor: pointer;
   align-items: center;
   gap: var(--spacing-md);
 }
@@ -120,6 +121,21 @@
   box-shadow: var(--shadow-md);
 }
 
+<<<<<<< HEAD
+=======
+/* .nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: -var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background-color: var(--text-inverse);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+} */
+
+>>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 .nav-link.disabled {
   opacity: 0.5;
   cursor: not-allowed;
