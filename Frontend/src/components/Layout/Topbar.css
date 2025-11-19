@@ -153,6 +153,30 @@
   color: var(--text-secondary);
 }
 
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: none;
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background-color: var(--danger-color);
+  color: var(--text-inverse);
+}
+
+.logout-btn i {
+  font-size: var(--text-base);
+}
+
 @media (max-width: 768px) {
   .topbar {
     left: 0;
@@ -167,6 +191,10 @@
   }
   
   .user-info {
+    display: none;
+  }
+
+  .logout-btn span {
     display: none;
   }
 }

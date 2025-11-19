@@ -28,9 +28,11 @@ const AdminCampuses = () => {
     setLoading(true);
     try {
       const data = await getCampuses();
-      setCampuses(data);
+      setCampuses(Array.isArray(data) ? data : []);
     } catch (error) {
-      showAlert('Failed to load campuses', 'error');
+      console.error('Error loading campuses:', error);
+      showAlert('No campus data available - Backend endpoint not implemented', 'error');
+      setCampuses([]);
     } finally {
       setLoading(false);
     }
@@ -109,7 +111,7 @@ const AdminCampuses = () => {
       handleCloseModal();
       loadCampuses();
     } catch (error) {
-      showAlert('Failed to save campus', 'error');
+      showAlert(error.message || 'Backend endpoint not implemented. Contact backend team.', 'error');
     }
   };
 
@@ -120,7 +122,7 @@ const AdminCampuses = () => {
         showAlert('Campus deleted successfully', 'success');
         loadCampuses();
       } catch (error) {
-        showAlert('Failed to delete campus', 'error');
+        showAlert(error.message || 'Backend endpoint not implemented. Contact backend team.', 'error');
       }
     }
   };

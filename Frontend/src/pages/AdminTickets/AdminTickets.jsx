@@ -14,8 +14,7 @@ const AdminTickets = () => {
   const [alert, setAlert] = useState(null);
   const [filters, setFilters] = useState({
     priority: 'all',
-    status: 'all',
-    category: 'all'
+    status: 'all'
   });
   const [formData, setFormData] = useState({
     campus_id: '',
@@ -45,10 +44,13 @@ const AdminTickets = () => {
         getTickets(),
         getCampuses()
       ]);
-      setTickets(ticketsData);
-      setCampuses(campusesData);
+      setTickets(Array.isArray(ticketsData) ? ticketsData : []);
+      setCampuses(Array.isArray(campusesData) ? campusesData : []);
     } catch (error) {
-      showAlert('Failed to load data', 'error');
+      console.error('Error loading tickets:', error);
+      showAlert('Failed to load tickets data', 'error');
+      setTickets([]);
+      setCampuses([]);
     } finally {
       setLoading(false);
     }
@@ -151,7 +153,6 @@ const AdminTickets = () => {
   const filteredTickets = tickets.filter(ticket => {
     if (filters.priority !== 'all' && ticket.priority !== filters.priority) return false;
     if (filters.status !== 'all' && ticket.status !== filters.status) return false;
-    if (filters.category !== 'all' && ticket.category !== filters.category) return false;
     return true;
   });
 
@@ -162,25 +163,14 @@ const AdminTickets = () => {
     low: 'fas fa-arrow-down'
   };
 
-  const categoryIcons = {
-    electrical: 'fas fa-bolt',
-    plumbing: 'fas fa-faucet',
-    hvac: 'fas fa-wind',
-    structural: 'fas fa-building',
-    equipment: 'fas fa-tools',
-    cleaning: 'fas fa-broom',
-    security: 'fas fa-shield-alt',
-    other: 'fas fa-wrench'
-  };
-
   const tableColumns = [
     { 
-      key: 'ticket_id', 
+      key: 'id', 
       label: 'TICKET ID',
-      render: (value) => `#${value}`
+      render: (value) => value || '#undefined'
     },
     { key: 'title', label: 'TITLE' },
-    { key: 'building_name', label: 'BUILDING' },
+    { key: 'building', label: 'BUILDING' },
     { key: 'location', label: 'LOCATION' },
     { 
       key: 'priority', 
@@ -188,7 +178,7 @@ const AdminTickets = () => {
       render: (value) => (
         <span className={`table-badge priority-${value}`}>
           <i className={priorityIcons[value]}></i>
-          {value}
+          {value?.toUpperCase()}
         </span>
       )
     },
@@ -196,20 +186,23 @@ const AdminTickets = () => {
       key: 'status', 
       label: 'STATUS',
       render: (value) => (
-        <span className={`table-badge status-${value}`}>{value}</span>
+        <span className={`table-badge status-${value}`}>
+          {value?.toUpperCase().replace('-', ' ')}
+        </span>
       )
     },
-    { key: 'reported_by', label: 'REPORTED BY' },
-    { key: 'assigned_to', label: 'ASSIGNED TO' },
     {
       key: 'actions',
       label: 'ACTIONS',
       render: (_, row) => (
         <div className="table-actions">
+          <button className="btn-icon btn-view" onClick={() => handleOpenModal(row)} title="View Details">
+            <i className="fas fa-eye"></i>
+          </button>
           <button className="btn-icon btn-edit" onClick={() => handleOpenModal(row)} title="Edit">
             <i className="fas fa-edit"></i>
           </button>
-          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.ticket_id, row.title)} title="Delete">
+          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.id, row.title)} title="Delete">
             <i className="fas fa-trash"></i>
           </button>
         </div>
@@ -321,23 +314,11 @@ const AdminTickets = () => {
           </select>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="category-filter">Category</label>
-          <select 
-            id="category-filter"
-            value={filters.category}
-            onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-          >
-            <option value="all">All Categories</option>
-            <option value="electrical">Electrical</option>
-            <option value="plumbing">Plumbing</option>
-            <option value="hvac">HVAC</option>
-            <option value="structural">Structural</option>
-            <option value="equipment">Equipment</option>
-            <option value="cleaning">Cleaning</option>
-            <option value="security">Security</option>
-            <option value="other">Other</option>
-          </select>
+        <div className="filter-stats">
+          <span className="stat-badge">
+            <i className="fas fa-ticket-alt"></i>
+            {filteredTickets.length} Tickets
+          </span>
         </div>
       </div>
 

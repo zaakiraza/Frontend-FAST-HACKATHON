@@ -27,7 +27,7 @@ const SpaceModel = {
         r.status,
         ROUND((r.current_occupancy / r.capacity) * 100) as percentage
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
     `;
     
     const params = [];
@@ -53,8 +53,8 @@ const SpaceModel = {
         r.capacity,
         r.status
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
-      ORDER BY r.room_id
+      JOIN buildings b ON r.building_id = b.id
+      ORDER BY r.id
     `;
     
     const [rows] = await db.query(query);
@@ -72,7 +72,7 @@ const SpaceModel = {
         b.building_name,
         COUNT(*) as count
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE (r.current_occupancy / r.capacity) < 0.3 AND r.status = 'occupied'
       GROUP BY b.building_name
       HAVING count >= 2
@@ -94,21 +94,20 @@ const SpaceModel = {
     
     // Find overcapacity rooms
     const overcapacityQuery = `
-      SELECT 
-        CONCAT(b1.building_code, '-', r1.room_number) as overcap_room,
-        b1.building_name,
-        r1.current_occupancy,
-        r1.capacity,
-        CONCAT(b2.building_code, '-', r2.room_number) as available_room,
-        r2.capacity - r2.current_occupancy as available_seats
-      FROM rooms r1
-      JOIN buildings b1 ON r1.building_id = b1.building_id
-      JOIN rooms r2 ON b1.building_id = b2.building_id
-      JOIN buildings b2 ON r2.building_id = b2.building_id
-      WHERE r1.current_occupancy > r1.capacity
-        AND r2.current_occupancy < r2.capacity * 0.5
-      LIMIT 2
-    `;
+    SELECT 
+      CONCAT(b1.building_code, '-', r1.room_number) as overcap_room,
+      b1.building_name,
+      r1.current_occupancy,
+      r1.capacity,
+      CONCAT(b1.building_code, '-', r2.room_number) as available_room,
+      r2.capacity - r2.current_occupancy as available_seats
+    FROM rooms r1
+    JOIN buildings b1 ON r1.building_id = b1.id
+    JOIN rooms r2 ON r1.building_id = r2.building_id
+    WHERE r1.current_occupancy > r1.capacity
+      AND r2.current_occupancy < r2.capacity * 0.5
+      AND r1.id != r2.id
+    LIMIT 2`;
     
     const [overcapacity] = await db.query(overcapacityQuery);
     
@@ -149,7 +148,7 @@ const SpaceModel = {
         r.status,
         ROUND((r.current_occupancy / r.capacity) * 100) as percentage
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE b.building_name LIKE ? OR b.building_code LIKE ?
       ORDER BY percentage DESC
     `;
@@ -171,7 +170,7 @@ const SpaceModel = {
         r.room_type as type,
         r.floor
       FROM rooms r
-      JOIN buildings b ON r.building_id = b.building_id
+      JOIN buildings b ON r.building_id = b.id
       WHERE r.room_number = ? OR r.room_name = ? OR CONCAT(b.building_code, '-', r.room_number) = ?
     `;
     

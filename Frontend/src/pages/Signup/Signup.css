@@ -1,0 +1,14 @@
+/* Reuse most styles from Login.css */
+@import url('../Login/Login.css');
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

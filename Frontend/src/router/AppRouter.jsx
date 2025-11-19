@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Energy from '../pages/Energy/Energy';
@@ -8,12 +8,33 @@ import AdminCampuses from '../pages/AdminCampuses/AdminCampuses';
 import AdminBuildings from '../pages/AdminBuildings/AdminBuildings';
 import AdminRooms from '../pages/AdminRooms/AdminRooms';
 import AdminTickets from '../pages/AdminTickets/AdminTickets';
+import Login from '../pages/Login/Login';
+import Signup from '../pages/Signup/Signup';
+import NotFound from '../pages/NotFound/NotFound';
+import { isAuthenticated } from '../api/authApi';
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        
+        {/* Protected Routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Dashboard />} />
           <Route path="energy" element={<Energy />} />
           <Route path="space" element={<Space />} />
@@ -29,6 +50,9 @@ const AppRouter = () => {
           {/* <Route path="mobility" element={<ComingSoon page="Mobility" />} /> */}
           {/* <Route path="connectivity" element={<ComingSoon page="Connectivity" />} /> */}
         </Route>
+
+        {/* 404 Not Found - Catch all routes */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

@@ -23,9 +23,18 @@ const Space = () => {
   const loadInitialData = async () => {
     try {
       const [summaryData, heatmapData, suggestionsData] = await Promise.all([
-        getSpaceSummary(),
-        getSpaceHeatmap(),
-        getSpaceSuggestions()
+        getSpaceSummary().catch(err => {
+          console.error('Summary failed:', err);
+          return { totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 };
+        }),
+        getSpaceHeatmap().catch(err => {
+          console.error('Heatmap failed:', err);
+          return [];
+        }),
+        getSpaceSuggestions().catch(err => {
+          console.error('Suggestions failed:', err);
+          return [];
+        })
       ]);
       
       setSummary(summaryData);
@@ -33,6 +42,10 @@ const Space = () => {
       setSuggestions(suggestionsData);
     } catch (error) {
       console.error('Error loading space data:', error);
+      // Set default values to prevent crashes
+      setSummary({ totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 });
+      setHeatmap([]);
+      setSuggestions([]);
     } finally {
       setLoading(false);
     }
@@ -42,9 +55,33 @@ const Space = () => {
     try {
       const data = await getSpaceOccupancy(filter);
       console.log('Occupancy data:', data);
-      setOccupancy(data);
+      console.log('First item:', data[0]);
+      
+      // Transform data to add calculated status based on percentage
+      const transformedData = data.map(room => {
+        const percentage = room.percentage || 0;
+        let calculatedStatus;
+        
+        if (percentage > 100) {
+          calculatedStatus = 'overcapacity';
+        } else if (percentage >= 70 && percentage <= 100) {
+          calculatedStatus = 'optimal';
+        } else if (percentage > 0 && percentage < 70) {
+          calculatedStatus = 'underutilized';
+        } else {
+          calculatedStatus = 'available';
+        }
+        
+        return {
+          ...room,
+          status: calculatedStatus
+        };
+      });
+      
+      setOccupancy(transformedData);
     } catch (error) {
       console.error('Error loading occupancy data:', error);
+      setOccupancy([]);
     }
   };
 
@@ -68,17 +105,23 @@ const Space = () => {
     {
       header: 'Utilization',
       accessor: 'percentage',
-      render: (value, row) => (
-        <div className="utilization-cell">
-          <span>{value}%</span>
-          <div className="progress-bar">
-            <div 
-              className={`progress-fill progress-${row.status}`}
-              style={{ width: `${Math.min(value, 100)}%` }}
-            ></div>
+      render: (value, row) => {
+        const percentValue = typeof value === 'number' ? value : parseFloat(value) || 0;
+        const displayValue = Math.round(percentValue);
+        const barWidth = Math.min(Math.max(percentValue, 0), 100);
+        
+        return (
+          <div className="utilization-cell">
+            <span>{displayValue}%</span>
+            <div className="progress-bar">
+              <div 
+                className={`progress-fill progress-${row.status}`}
+                style={{ width: `${barWidth}%` }}
+              ></div>
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       header: 'Status',
@@ -109,7 +152,7 @@ const Space = () => {
       <div className="space-grid">
         <InfoCard
           title="Total Rooms"
-          value={summary.totalRooms}
+          value={summary?.totalRooms || 0}
           icon={<i className="fas fa-building"></i>}
           subtitle="Campus-wide"
           color="primary"
@@ -117,15 +160,15 @@ const Space = () => {
         
         <InfoCard
           title="Occupied"
-          value={summary.occupied}
+          value={summary?.occupied || 0}
           icon={<i className="fas fa-users"></i>}
-          subtitle={`${Math.round((summary.occupied / summary.totalRooms) * 100)}% utilization`}
+          subtitle={`${summary?.totalRooms ? Math.round((summary.occupied / summary.totalRooms) * 100) : 0}% utilization`}
           color="success"
         />
         
         <InfoCard
           title="Available"
-          value={summary.available}
+          value={summary?.available || 0}
           icon={<i className="fas fa-check-circle"></i>}
           subtitle="Ready for use"
           color="info"
@@ -133,7 +176,7 @@ const Space = () => {
         
         <InfoCard
           title="Over Capacity"
-          value={summary.overCapacity}
+          value={summary?.overCapacity || 0}
           icon={<i className="fas fa-exclamation-triangle"></i>}
           subtitle="Requires attention"
           color="danger"
@@ -161,15 +204,19 @@ const Space = () => {
           </div>
           
           <div className="heatmap-grid">
-            {heatmap.slice(0, 40).map(room => (
-              <div 
-                key={room.id} 
-                className={`heatmap-cell heatmap-${room.status}`}
-                title={`${room.name}: ${room.occupancy}/${room.capacity}`}
-              >
-                <span className="cell-label">{room.id.split('-')[1]}</span>
-              </div>
-            ))}
+            {heatmap && heatmap.length > 0 ? (
+              heatmap.slice(0, 40).map(room => (
+                <div 
+                  key={room.id} 
+                  className={`heatmap-cell heatmap-${room.status}`}
+                  title={`${room.name}: ${room.occupancy}/${room.capacity}`}
+                >
+                  <span className="cell-label">{room.id.split('-')[1]}</span>
+                </div>
+              ))
+            ) : (
+              <div className="loading-state">No heatmap data available</div>
+            )}
           </div>
         </div>
       </div>
@@ -217,28 +264,32 @@ const Space = () => {
         <div className="section-card">
           <div className="section-header">
             <h2 className="section-title">Optimization Suggestions</h2>
-            <span className="badge-count">{suggestions.length} suggestions</span>
+            <span className="badge-count">{suggestions?.length || 0} suggestions</span>
           </div>
           
           <div className="suggestions-grid">
-            {suggestions.map(suggestion => (
-              <div key={suggestion.id} className="suggestion-card">
-                <div className="suggestion-header">
-                  <span className={`suggestion-type type-${suggestion.type}`}>
-                    {suggestion.type}
-                  </span>
-                  <span className={`suggestion-impact impact-${suggestion.impact.toLowerCase()}`}>
-                    {suggestion.impact} Impact
-                  </span>
+            {suggestions && suggestions.length > 0 ? (
+              suggestions.map(suggestion => (
+                <div key={suggestion.id} className="suggestion-card">
+                  <div className="suggestion-header">
+                    <span className={`suggestion-type type-${suggestion.type}`}>
+                      {suggestion.type}
+                    </span>
+                    <span className={`suggestion-impact impact-${suggestion.impact.toLowerCase()}`}>
+                      {suggestion.impact} Impact
+                    </span>
+                  </div>
+                  <h3 className="suggestion-title">{suggestion.title}</h3>
+                  <p className="suggestion-description">{suggestion.description}</p>
+                  <div className="suggestion-footer">
+                    <span className="suggestion-savings">💰 {suggestion.savings}</span>
+                    <button className="btn-suggestion">Review</button>
+                  </div>
                 </div>
-                <h3 className="suggestion-title">{suggestion.title}</h3>
-                <p className="suggestion-description">{suggestion.description}</p>
-                <div className="suggestion-footer">
-                  <span className="suggestion-savings">💰 {suggestion.savings}</span>
-                  <button className="btn-suggestion">Review</button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="loading-state">No optimization suggestions available</div>
+            )}
           </div>
         </div>
       </div>

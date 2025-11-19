@@ -47,10 +47,13 @@ const AdminRooms = () => {
         getRooms(),
         getCampuses()
       ]);
-      setRooms(roomsData);
-      setCampuses(campusesData);
+      setRooms(Array.isArray(roomsData) ? roomsData : []);
+      setCampuses(Array.isArray(campusesData) ? campusesData : []);
     } catch (error) {
-      showAlert('Failed to load data', 'error');
+      console.error('Error loading rooms:', error);
+      showAlert('Failed to load rooms data', 'error');
+      setRooms([]);
+      setCampuses([]);
     } finally {
       setLoading(false);
     }
@@ -220,27 +223,43 @@ const AdminRooms = () => {
   };
 
   const filteredRooms = rooms.filter(room => {
-    if (filters.campus !== 'all' && room.campus_id !== parseInt(filters.campus)) return false;
-    if (filters.type !== 'all' && room.room_type !== filters.type) return false;
+    // API returns: room, building, capacity, current, status, percentage
     if (filters.status !== 'all' && room.status !== filters.status) return false;
     return true;
   });
 
   const tableColumns = [
-    { key: 'room_number', label: 'Room #' },
-    { key: 'room_name', label: 'Name' },
+    { 
+      key: 'room', 
+      label: 'Room #',
+      render: (value) => value || 'N/A'
+    },
     { key: 'building', label: 'Building' },
-    { key: 'floor', label: 'Floor' },
-    { key: 'room_type', label: 'Type' },
     { 
       key: 'capacity', 
       label: 'Capacity',
-      render: (value) => value.toLocaleString()
+      render: (value) => value ? value.toLocaleString() : 'N/A'
     },
     { 
-      key: 'current_occupancy', 
+      key: 'current', 
       label: 'Occupancy',
-      render: (value, row) => `${value}/${row.capacity} (${Math.round((value/row.capacity)*100)}%)`
+      render: (value, row) => {
+        const percentValue = typeof row.percentage === 'number' ? row.percentage : parseFloat(row.percentage) || 0;
+        const displayValue = Math.round(percentValue);
+        const barWidth = Math.min(Math.max(percentValue, 0), 100);
+        
+        return (
+          <div className="utilization-cell">
+            <span>{value || 0}/{row.capacity || 0} ({displayValue}%)</span>
+            <div className="progress-bar">
+              <div 
+                className={`progress-fill progress-${row.status}`}
+                style={{ width: `${barWidth}%` }}
+              ></div>
+            </div>
+          </div>
+        );
+      }
     },
     { 
       key: 'status', 
@@ -248,11 +267,6 @@ const AdminRooms = () => {
       render: (value) => (
         <span className={`table-badge status-${value}`}>{value}</span>
       )
-    },
-    { 
-      key: 'scheduled_classes', 
-      label: 'Scheduled',
-      render: (value) => value?.length || 0
     },
     {
       key: 'actions',
@@ -262,7 +276,7 @@ const AdminRooms = () => {
           <button className="btn-icon btn-edit" onClick={() => handleOpenModal(row)} title="Edit">
             <i className="fas fa-edit"></i>
           </button>
-          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.room_id, row.room_name)} title="Delete">
+          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.room, row.room)} title="Delete">
             <i className="fas fa-trash"></i>
           </button>
         </div>
@@ -295,39 +309,6 @@ const AdminRooms = () => {
 
       <div className="filters-section">
         <div className="filter-group">
-          <label htmlFor="campus-filter">Campus</label>
-          <select 
-            id="campus-filter"
-            value={filters.campus}
-            onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-          >
-            <option value="all">All Campuses</option>
-            {campuses.map(campus => (
-              <option key={campus.campus_id} value={campus.campus_id}>
-                {campus.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="type-filter">Room Type</label>
-          <select 
-            id="type-filter"
-            value={filters.type}
-            onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-          >
-            <option value="all">All Types</option>
-            <option value="classroom">Classroom</option>
-            <option value="lab">Lab</option>
-            <option value="lecture-hall">Lecture Hall</option>
-            <option value="auditorium">Auditorium</option>
-            <option value="library">Library</option>
-            <option value="office">Office</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
           <label htmlFor="status-filter">Status</label>
           <select 
             id="status-filter"
@@ -349,7 +330,11 @@ const AdminRooms = () => {
           </span>
           <span className="stat-badge">
             <i className="fas fa-users"></i>
-            {filteredRooms.reduce((sum, r) => sum + r.capacity, 0).toLocaleString()} Total Capacity
+            {filteredRooms.reduce((sum, r) => sum + (r.capacity || 0), 0).toLocaleString()} Total Capacity
+          </span>
+          <span className="stat-badge">
+            <i className="fas fa-user-check"></i>
+            {filteredRooms.reduce((sum, r) => sum + (r.current || 0), 0).toLocaleString()} Current Occupancy
           </span>
         </div>
       </div>

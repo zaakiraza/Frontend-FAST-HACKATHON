@@ -483,3 +483,45 @@
     font-size: 0.75rem;
   }
 }
+
+/* Progress Bar Styles */
+.utilization-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width var(--transition-normal);
+  border-radius: 3px;
+}
+
+.progress-available {
+  background-color: #9ca3af;
+}
+
+.progress-underutilized {
+  background-color: var(--warning-color);
+}
+
+.progress-optimal {
+  background-color: var(--success-color);
+}
+
+.progress-overcapacity,
+.progress-reserved {
+  background-color: var(--danger-color);
+}
+
+.progress-occupied {
+  background-color: #f59e0b;
+}

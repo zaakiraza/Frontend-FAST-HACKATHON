@@ -77,7 +77,7 @@ const DashboardModel = {
           CONCAT('High energy consumption detected in ', b.building_name) as message,
           CONCAT(TIMESTAMPDIFF(MINUTE, ea.timestamp, NOW()), ' minutes ago') as timestamp
         FROM energy_anomalies ea
-        JOIN buildings b ON ea.building_id = b.building_id
+        JOIN buildings b ON ea.building_id = b.id
         WHERE ea.severity IN ('critical', 'high')
         ORDER BY ea.timestamp DESC
         LIMIT 2
@@ -89,7 +89,7 @@ const DashboardModel = {
           CONCAT(CONCAT(b.building_code, '-', r.room_number), ' exceeding capacity limits') as message,
           CONCAT(TIMESTAMPDIFF(MINUTE, NOW(), NOW()), ' minutes ago') as timestamp
         FROM rooms r
-        JOIN buildings b ON r.building_id = b.building_id
+        JOIN buildings b ON r.building_id = b.id
         WHERE r.current_occupancy > r.capacity
         LIMIT 2
       )

@@ -8,9 +8,9 @@ const EnergyModel = {
         SUM(e.consumption_kwh) as totalConsumption,
         SUM(e.cost) as totalCost,
         AVG(e.efficiency_percentage) as avgEfficiency,
-        COUNT(DISTINCT ea.anomaly_id) as anomalyCount
+        COUNT(DISTINCT ea.id) as anomalyCount
       FROM energy_readings e
-      LEFT JOIN energy_anomalies ea ON e.reading_id = ea.reading_id
+      LEFT JOIN energy_anomalies ea ON e.id = ea.reading_id
       WHERE DATE(e.timestamp) = CURDATE()
     `;
     
@@ -22,13 +22,13 @@ const EnergyModel = {
   async getBuildings() {
     const query = `
       SELECT 
-        b.building_id as id,
+        b.id,
         CONCAT(c.name, ' - ', b.building_name) as name,
         c.location,
         b.total_rooms,
         b.total_capacity
       FROM buildings b
-      JOIN campuses c ON b.campus_id = c.campus_id
+      JOIN campuses c ON b.campus_id = c.id
       WHERE b.status = 'active'
     `;
     
@@ -50,7 +50,7 @@ const EnergyModel = {
         WHERE DATE(timestamp) = CURDATE()
         ${buildingId ? 'AND building_id = ?' : ''}
         GROUP BY DATE_FORMAT(timestamp, '%H:00')
-        ORDER BY timestamp
+        ORDER BY DATE_FORMAT(timestamp, '%H:00')
       `;
     } else if (timeRange === 'daily') {
       query = `
@@ -61,7 +61,7 @@ const EnergyModel = {
         WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
         ${buildingId ? 'AND building_id = ?' : ''}
         GROUP BY DATE(timestamp)
-        ORDER BY timestamp
+        ORDER BY DATE(timestamp)
       `;
     } else if (timeRange === 'weekly') {
       query = `
@@ -72,7 +72,7 @@ const EnergyModel = {
         WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
         ${buildingId ? 'AND building_id = ?' : ''}
         GROUP BY WEEK(timestamp, 1)
-        ORDER BY timestamp
+        ORDER BY WEEK(timestamp, 1)
       `;
     }
 
@@ -88,7 +88,7 @@ const EnergyModel = {
   async getAnomalies() {
     const query = `
       SELECT 
-        ea.anomaly_id as id,
+        ea.id,
         CONCAT(c.name, ' - ', b.building_name) as building,
         ea.location,
         ea.timestamp,
@@ -97,8 +97,8 @@ const EnergyModel = {
         ea.expected_consumption as expected,
         CONCAT('+', ROUND(((ea.actual_consumption - ea.expected_consumption) / ea.expected_consumption) * 100), '%') as deviation
       FROM energy_anomalies ea
-      JOIN buildings b ON ea.building_id = b.building_id
-      JOIN campuses c ON b.campus_id = c.campus_id
+      JOIN buildings b ON ea.building_id = b.id
+      JOIN campuses c ON b.campus_id = c.id
       WHERE DATE(ea.timestamp) = CURDATE()
       ORDER BY 
         CASE ea.severity 
@@ -123,10 +123,10 @@ const EnergyModel = {
         SUM(e.cost) as cost,
         AVG(e.efficiency_percentage) as efficiency
       FROM energy_readings e
-      JOIN buildings b ON e.building_id = b.building_id
-      JOIN campuses c ON b.campus_id = c.campus_id
+      JOIN buildings b ON e.building_id = b.id
+      JOIN campuses c ON b.campus_id = c.id
       WHERE e.building_id = ? AND DATE(e.timestamp) = CURDATE()
-      GROUP BY b.building_id, c.name, b.building_name
+      GROUP BY b.id, c.name, b.building_name
     `;
     
     const [rows] = await db.query(query, [buildingId]);
@@ -138,7 +138,7 @@ const EnergyModel = {
     // Get anomalies for this building
     const anomalyQuery = `
       SELECT 
-        anomaly_id as id,
+        id,
         location,
         timestamp,
         severity,

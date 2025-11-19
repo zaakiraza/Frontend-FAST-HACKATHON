@@ -20,11 +20,21 @@ const Dashboard = () => {
     try {
       const [dashboardStats, energyData, alertsData] = await Promise.all([
         getDashboardStats(),
-        getEnergyTimeSeries(null, 'daily'),
-        getRecentAlerts()
+        getEnergyTimeSeries(null, 'daily').catch(err => {
+          // console.warn('Energy data failed, using empty array:', err);
+          return [];
+        }),
+        getRecentAlerts().catch(err => {
+          // console.warn('Alerts failed, using empty array:', err);
+          return [];
+        })
       ]);
       
-      setStats(dashboardStats.stats || dashboardStats);
+      // console.log('Raw Dashboard Stats:', dashboardStats);
+      const processedStats = dashboardStats.stats || dashboardStats;
+      // console.log('Processed Stats:', processedStats);
+      
+      setStats(processedStats);
       setChartData(energyData);
       setAlerts(alertsData);
     } catch (error) {
@@ -45,6 +55,13 @@ const Dashboard = () => {
         <div className="loading-state">Loading dashboard data...</div>
       ) : (
         <>
+          {/* Debug: Show raw stats */}
+          {/* {stats && (
+            <div style={{padding: '10px', background: '#f0f0f0', margin: '10px 0', fontSize: '12px'}}>
+              <strong>Debug Stats:</strong> {JSON.stringify(stats, null, 2)}
+            </div>
+          )} */}
+          
           <div className="dashboard-grid">
             <InfoCard
               title="Energy Consumption"

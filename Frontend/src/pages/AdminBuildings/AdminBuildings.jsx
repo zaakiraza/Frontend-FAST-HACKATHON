@@ -32,19 +32,21 @@ const AdminBuildings = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [buildingsRes, campusesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/admin/buildings`),
-        fetch(`${API_BASE_URL}/admin/campuses`)
-      ]);
       
+      // Use existing energy/buildings endpoint for buildings data
+      const buildingsRes = await fetch(`${API_BASE_URL}/energy/buildings`);
       const buildingsData = await buildingsRes.json();
-      const campusesData = await campusesRes.json();
       
-      setBuildings(buildingsData.data || []);
-      setCampuses(campusesData.data || []);
+      // Campus data not available - no endpoint exists
+      const buildings = Array.isArray(buildingsData) ? buildingsData : buildingsData.data || [];
+      
+      setBuildings(buildings);
+      setCampuses([]); // No campus endpoint available
     } catch (error) {
       console.error('Error loading data:', error);
-      showAlert('Failed to load data', 'error');
+      showAlert('Failed to load buildings data', 'error');
+      setBuildings([]);
+      setCampuses([]);
     } finally {
       setLoading(false);
     }
@@ -96,89 +98,58 @@ const AdminBuildings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.campus_id || !formData.building_name || !formData.building_code) {
+    if (!formData.building_name || !formData.building_code) {
       showAlert('Please fill in all required fields', 'error');
       return;
     }
 
-    try {
-      const url = editingBuilding 
-        ? `${API_BASE_URL}/admin/buildings/${editingBuilding.building_id}`
-        : `${API_BASE_URL}/admin/buildings`;
-      
-      const response = await fetch(url, {
-        method: editingBuilding ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        showAlert(editingBuilding ? 'Building updated successfully' : 'Building created successfully', 'success');
-        handleCloseModal();
-        loadData();
-      } else {
-        showAlert(result.message || 'Failed to save building', 'error');
-      }
-    } catch (error) {
-      console.error('Error saving building:', error);
-      showAlert('Failed to save building', 'error');
-    }
+    // Backend doesn't have admin/buildings CRUD endpoints yet
+    showAlert('Building creation/update not implemented on backend. Contact backend team.', 'error');
   };
 
   const handleDelete = async (buildingId, buildingName) => {
     if (window.confirm(`Are you sure you want to delete "${buildingName}"?`)) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/admin/buildings/${buildingId}`, {
-          method: 'DELETE'
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          showAlert('Building deleted successfully', 'success');
-          loadData();
-        } else {
-          showAlert(result.message || 'Failed to delete building', 'error');
-        }
-      } catch (error) {
-        console.error('Error deleting building:', error);
-        showAlert('Failed to delete building', 'error');
-      }
+      // Backend doesn't have admin/buildings DELETE endpoint yet
+      showAlert('Building deletion not implemented on backend. Contact backend team.', 'error');
     }
   };
 
   const filteredBuildings = buildings.filter(building => {
-    if (filters.campus !== 'all' && building.campus_id !== parseInt(filters.campus)) return false;
-    if (filters.status !== 'all' && building.status !== filters.status) return false;
+    // Since energy/buildings API doesn't return status field, assume all are active
+    // Filter would work if status field is added to backend response
+    const buildingStatus = building.status || 'active';
+    if (filters.status !== 'all' && buildingStatus !== filters.status) return false;
     return true;
   });
 
   const tableColumns = [
-    { key: 'building_name', label: 'Building Name' },
-    { key: 'building_code', label: 'Code' },
-    { key: 'campus_name', label: 'Campus' },
     { 
-      key: 'floor_count', 
-      label: 'Floors',
+      key: 'name', 
+      label: 'Building Name',
       render: (value) => value || 'N/A'
     },
     { 
-      key: 'total_capacity', 
-      label: 'Total Capacity',
+      key: 'id', 
+      label: 'Building ID',
+      render: (value) => value || 'N/A'
+    },
+    { 
+      key: 'energy_consumption', 
+      label: 'Energy (kWh)',
       render: (value) => value ? value.toLocaleString() : 'N/A'
     },
     { 
-      key: 'room_count', 
-      label: 'Rooms',
-      render: (value) => value || 0
+      key: 'efficiency_score', 
+      label: 'Efficiency',
+      render: (value) => value ? `${value}%` : 'N/A'
     },
     { 
       key: 'status', 
       label: 'Status',
       render: (value) => (
-        <span className={`table-badge status-${value}`}>{value}</span>
+        <span className={`table-badge status-${value || 'active'}`}>
+          {value || 'active'}
+        </span>
       )
     },
     { 
@@ -195,7 +166,7 @@ const AdminBuildings = () => {
           </button>
           <button 
             className="btn-icon btn-delete" 
-            onClick={() => handleDelete(row.building_id, row.building_name)}
+            onClick={() => handleDelete(row.id, row.name)}
             title="Delete"
           >
             <i className="fas fa-trash"></i>
@@ -225,22 +196,6 @@ const AdminBuildings = () => {
 
       <div className="filters-bar">
         <div className="filter-group">
-          <label htmlFor="campus-filter">Campus</label>
-          <select 
-            id="campus-filter"
-            value={filters.campus}
-            onChange={(e) => setFilters(prev => ({ ...prev, campus: e.target.value }))}
-          >
-            <option value="all">All Campuses</option>
-            {campuses.map(campus => (
-              <option key={campus.campus_id} value={campus.campus_id}>
-                {campus.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
           <label htmlFor="status-filter">Status</label>
           <select 
             id="status-filter"
@@ -259,10 +214,6 @@ const AdminBuildings = () => {
             <i className="fas fa-building"></i>
             {filteredBuildings.length} Buildings
           </span>
-          <span className="stat-badge">
-            <i className="fas fa-door-open"></i>
-            {filteredBuildings.reduce((sum, b) => sum + (b.room_count || 0), 0)} Total Rooms
-          </span>
         </div>
       </div>
 
@@ -275,22 +226,9 @@ const AdminBuildings = () => {
 
       <Modal isOpen={showModal} onClose={handleCloseModal} title={editingBuilding ? 'Edit Building' : 'Add New Building'}>
         <form onSubmit={handleSubmit} className="building-form">
-          <div className="form-group">
-            <label htmlFor="campus_id">Campus *</label>
-            <select
-              id="campus_id"
-              name="campus_id"
-              value={formData.campus_id}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Campus</option>
-              {campuses.map(campus => (
-                <option key={campus.campus_id} value={campus.campus_id}>
-                  {campus.name}
-                </option>
-              ))}
-            </select>
+          <div className="alert alert-info">
+            <i className="fas fa-info-circle"></i>
+            Building creation/update requires backend admin endpoints
           </div>
 
           <div className="form-row">
@@ -367,7 +305,7 @@ const AdminBuildings = () => {
             <button type="button" className="btn-secondary" onClick={handleCloseModal}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary" disabled>
               <i className="fas fa-save"></i> {editingBuilding ? 'Update' : 'Create'} Building
             </button>
           </div>
