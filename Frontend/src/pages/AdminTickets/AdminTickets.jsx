@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getTickets, createTicket, updateTicket, deleteTicket, getCampuses } from '../../api/ticketApi';
+import { useAuth } from '../../context/AuthContext';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
+import AdvancedSearch from '../../components/AdvancedSearch/AdvancedSearch';
 import './AdminTickets.css';
 
 const AdminTickets = () => {
@@ -14,7 +17,8 @@ const AdminTickets = () => {
   const [alert, setAlert] = useState(null);
   const [filters, setFilters] = useState({
     priority: 'all',
-    status: 'all'
+    status: 'all',
+    search: ''
   });
   const [formData, setFormData] = useState({
     campus_id: '',
@@ -150,9 +154,33 @@ const AdminTickets = () => {
     }
   };
 
+  const handleSearch = ({ search, filters: searchFilters }) => {
+    setFilters(prev => ({
+      ...prev,
+      search: search || '',
+      priority: searchFilters.priority || 'all',
+      status: searchFilters.status || 'all'
+    }));
+  };
+
   const filteredTickets = tickets.filter(ticket => {
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch = 
+        ticket.id?.toLowerCase().includes(searchLower) ||
+        ticket.title?.toLowerCase().includes(searchLower) ||
+        ticket.building?.toLowerCase().includes(searchLower) ||
+        ticket.location?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+    
+    // Priority filter
     if (filters.priority !== 'all' && ticket.priority !== filters.priority) return false;
+    
+    // Status filter
     if (filters.status !== 'all' && ticket.status !== filters.status) return false;
+    
     return true;
   });
 
@@ -283,44 +311,32 @@ const AdminTickets = () => {
         </div>
       </div>
 
-      <div className="filters-section">
-        <div className="filter-group">
-          <label htmlFor="priority-filter">Priority</label>
-          <select 
-            id="priority-filter"
-            value={filters.priority}
-            onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
-          >
-            <option value="all">All Priorities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="status-filter">Status</label>
-          <select 
-            id="status-filter"
-            value={filters.status}
-            onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-          >
-            <option value="all">All Status</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-
-        <div className="filter-stats">
-          <span className="stat-badge">
-            <i className="fas fa-ticket-alt"></i>
-            {filteredTickets.length} Tickets
-          </span>
-        </div>
-      </div>
+      <AdvancedSearch
+        onSearch={handleSearch}
+        placeholder="Search tickets by ID, title, building, or location..."
+        filters={[
+          {
+            key: 'priority',
+            label: 'Priority',
+            options: [
+              { value: 'critical', label: 'Critical' },
+              { value: 'high', label: 'High' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'low', label: 'Low' }
+            ]
+          },
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { value: 'open', label: 'Open' },
+              { value: 'in-progress', label: 'In Progress' },
+              { value: 'resolved', label: 'Resolved' },
+              { value: 'closed', label: 'Closed' }
+            ]
+          }
+        ]}
+      />
 
       <div className="tickets-table-wrapper">
         <SimpleTable 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getRooms, createRoom, updateRoom, deleteRoom, getCampuses, getBuildings } from '../../api/roomApi';
+import { useAuth } from '../../context/AuthContext';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';

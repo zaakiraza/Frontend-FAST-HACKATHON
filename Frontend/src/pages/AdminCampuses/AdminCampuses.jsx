@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCampuses, createCampus, updateCampus, deleteCampus } from '../../api/campusApi';
+import { useAuth } from '../../context/AuthContext';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import './AdminCampuses.css';

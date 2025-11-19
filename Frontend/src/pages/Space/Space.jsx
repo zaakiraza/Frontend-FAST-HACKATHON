@@ -7,6 +7,7 @@ import './Space.css';
 const Space = () => {
   const [summary, setSummary] = useState(null);
   const [occupancy, setOccupancy] = useState([]);
+  const [allOccupancyData, setAllOccupancyData] = useState([]); // Store all data
   const [heatmap, setHeatmap] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -17,15 +18,19 @@ const Space = () => {
   }, []);
 
   useEffect(() => {
-    loadOccupancyData();
-  }, [filter]);
+    applyFilter();
+  }, [filter, allOccupancyData]);
 
   const loadInitialData = async () => {
     try {
-      const [summaryData, heatmapData, suggestionsData] = await Promise.all([
+      const [summaryData, occupancyData, heatmapData, suggestionsData] = await Promise.all([
         getSpaceSummary().catch(err => {
           console.error('Summary failed:', err);
           return { totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 };
+        }),
+        getSpaceOccupancy().catch(err => {
+          console.error('Occupancy failed:', err);
+          return [];
         }),
         getSpaceHeatmap().catch(err => {
           console.error('Heatmap failed:', err);
@@ -38,27 +43,9 @@ const Space = () => {
       ]);
       
       setSummary(summaryData);
-      setHeatmap(heatmapData);
-      setSuggestions(suggestionsData);
-    } catch (error) {
-      console.error('Error loading space data:', error);
-      // Set default values to prevent crashes
-      setSummary({ totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 });
-      setHeatmap([]);
-      setSuggestions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadOccupancyData = async () => {
-    try {
-      const data = await getSpaceOccupancy(filter);
-      console.log('Occupancy data:', data);
-      console.log('First item:', data[0]);
       
-      // Transform data to add calculated status based on percentage
-      const transformedData = data.map(room => {
+      // Transform occupancy data to add calculated status
+      const transformedData = occupancyData.map(room => {
         const percentage = room.percentage || 0;
         let calculatedStatus;
         
@@ -78,10 +65,27 @@ const Space = () => {
         };
       });
       
-      setOccupancy(transformedData);
+      setAllOccupancyData(transformedData);
+      setHeatmap(heatmapData);
+      setSuggestions(suggestionsData);
     } catch (error) {
-      console.error('Error loading occupancy data:', error);
-      setOccupancy([]);
+      console.error('Error loading space data:', error);
+      // Set default values to prevent crashes
+      setSummary({ totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 });
+      setAllOccupancyData([]);
+      setHeatmap([]);
+      setSuggestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFilter = () => {
+    if (filter === 'all') {
+      setOccupancy(allOccupancyData);
+    } else {
+      const filtered = allOccupancyData.filter(room => room.status === filter);
+      setOccupancy(filtered);
     }
   };
 
@@ -283,7 +287,7 @@ const Space = () => {
                   <p className="suggestion-description">{suggestion.description}</p>
                   <div className="suggestion-footer">
                     <span className="suggestion-savings">💰 {suggestion.savings}</span>
-                    <button className="btn-suggestion">Review</button>
+                    {/* <button className="btn-suggestion">Review</button> */}
                   </div>
                 </div>
               ))

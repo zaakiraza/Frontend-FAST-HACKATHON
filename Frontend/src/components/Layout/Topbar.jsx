@@ -1,16 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout, getStoredUser } from '../../api/authApi';
+import { useAuth } from '../../context/AuthContext';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import './Topbar.css';
 
 const Topbar = ({ onMenuToggle }) => {
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedUser = getStoredUser();
-    setUser(storedUser);
-  }, []);
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -28,16 +23,20 @@ const Topbar = ({ onMenuToggle }) => {
       
       <div className="topbar-right">
         <div className="topbar-item">
-          <div className="user-profile">
+          <ThemeToggle />
+        </div>
+
+        <div className="topbar-item">
+          <div className="user-profile" onClick={() => navigate('/profile')}>
             <div className="user-avatar">
               <span><i className="fas fa-user"></i></span>
             </div>
             <div className="user-info">
               <span className="user-name">
-                {user ? `${user.first_name} ${user.last_name}` : 'Loading...'}
+                {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || user.email : 'User'}
               </span>
               <span className="user-role">
-                {user?.roles?.[0]?.role_name || 'System Administrator'}
+                {user?.roles?.[0]?.display_name || user?.roles?.[0]?.name || 'User'}
               </span>
             </div>
           </div>

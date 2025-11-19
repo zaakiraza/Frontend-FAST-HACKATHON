@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout/Layout';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Energy from '../pages/Energy/Energy';
@@ -11,11 +12,17 @@ import AdminTickets from '../pages/AdminTickets/AdminTickets';
 import Login from '../pages/Login/Login';
 import Signup from '../pages/Signup/Signup';
 import NotFound from '../pages/NotFound/NotFound';
-import { isAuthenticated } from '../api/authApi';
+import Profile from '../pages/Profile/Profile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -39,6 +46,9 @@ const AppRouter = () => {
           <Route path="energy" element={<Energy />} />
           <Route path="space" element={<Space />} />
           <Route path="maintenance" element={<Maintenance />} />
+          
+          {/* Profile */}
+          <Route path="profile" element={<Profile />} />
           
           {/* Admin Routes */}
           <Route path="admin/campuses" element={<AdminCampuses />} />

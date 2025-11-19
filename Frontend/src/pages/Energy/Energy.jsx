@@ -16,10 +16,26 @@ const Energy = () => {
 
   useEffect(() => {
     loadInitialData();
+    
+    // Auto-refresh energy data every 10 seconds
+    const intervalId = setInterval(() => {
+      loadInitialData();
+    }, 10000);
+    
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
     loadChartData();
+    
+    // Auto-refresh chart data every 10 seconds
+    const intervalId = setInterval(() => {
+      loadChartData();
+    }, 10000);
+    
+    // Cleanup interval on component unmount or when filters change
+    return () => clearInterval(intervalId);
   }, [selectedBuilding, timeRange]);
 
   const loadInitialData = async () => {
@@ -42,8 +58,12 @@ const Energy = () => {
 
   const loadChartData = async () => {
     try {
+      console.log('Loading chart data with filters:', { selectedBuilding, timeRange });
       const data = await getEnergyTimeSeries(selectedBuilding, timeRange);
-      setChartData(Array.isArray(data) ? data : data.data);
+      console.log('Received data from API:', data);
+      const chartData = Array.isArray(data) ? data : data.data;
+      console.log('Setting chart data:', chartData);
+      setChartData(chartData);
     } catch (error) {
       console.error('Error loading chart data:', error);
     }
@@ -180,7 +200,11 @@ const Energy = () => {
             </div>
           </div>
           
-          <LineChart data={chartData} height={300} />
+          <LineChart 
+            data={chartData} 
+            height={300} 
+            key={`${selectedBuilding}-${timeRange}`}
+          />
         </div>
       </div>
 

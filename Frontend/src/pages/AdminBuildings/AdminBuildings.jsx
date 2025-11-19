@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../config/apiConfig';
+import { useAuth } from '../../context/AuthContext';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
@@ -129,48 +131,43 @@ const AdminBuildings = () => {
       render: (value) => value || 'N/A'
     },
     { 
-      key: 'id', 
-      label: 'Building ID',
+      key: 'location', 
+      label: 'Location',
       render: (value) => value || 'N/A'
     },
     { 
-      key: 'energy_consumption', 
-      label: 'Energy (kWh)',
-      render: (value) => value ? value.toLocaleString() : 'N/A'
+      key: 'total_rooms', 
+      label: 'Total Rooms',
+      render: (value) => value || 0
     },
     { 
-      key: 'efficiency_score', 
-      label: 'Efficiency',
-      render: (value) => value ? `${value}%` : 'N/A'
-    },
-    { 
-      key: 'status', 
-      label: 'Status',
-      render: (value) => (
-        <span className={`table-badge status-${value || 'active'}`}>
-          {value || 'active'}
-        </span>
-      )
+      key: 'total_capacity', 
+      label: 'Total Capacity',
+      render: (value) => value ? value.toLocaleString() : 0
     },
     { 
       key: 'actions', 
       label: 'Actions',
       render: (_, row) => (
         <div className="table-actions">
-          <button 
-            className="btn-icon btn-edit" 
-            onClick={() => handleOpenModal(row)}
-            title="Edit"
-          >
-            <i className="fas fa-edit"></i>
-          </button>
-          <button 
-            className="btn-icon btn-delete" 
-            onClick={() => handleDelete(row.id, row.name)}
-            title="Delete"
-          >
-            <i className="fas fa-trash"></i>
-          </button>
+          <PermissionGate permissions={["space.view", "maintenance.update"]} requireAll={false}>
+            <button 
+              className="btn-icon btn-edit" 
+              onClick={() => handleOpenModal(row)}
+              title="Edit"
+            >
+              <i className="fas fa-edit"></i>
+            </button>
+          </PermissionGate>
+          <PermissionGate permissions={["maintenance.delete"]} requireAll={false} role="super-admin">
+            <button 
+              className="btn-icon btn-delete" 
+              onClick={() => handleDelete(row.id, row.name)}
+              title="Delete"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
+          </PermissionGate>
         </div>
       )
     }
@@ -189,9 +186,11 @@ const AdminBuildings = () => {
           <h1><i className="fas fa-building"></i> Building Management</h1>
           <p>Manage campus buildings and facilities</p>
         </div>
-        <button className="btn-primary" onClick={() => handleOpenModal()}>
-          <i className="fas fa-plus"></i> Add Building
-        </button>
+        <PermissionGate permissions={["space.view", "maintenance.create"]} requireAll={false}>
+          <button className="btn-primary" onClick={() => handleOpenModal()}>
+            <i className="fas fa-plus"></i> Add Building
+          </button>
+        </PermissionGate>
       </div>
 
       <div className="filters-bar">

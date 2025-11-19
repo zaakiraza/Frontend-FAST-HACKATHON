@@ -24,6 +24,7 @@
 
 .page-subtitle {
   font-size: 1rem;
+  color: white !important; 
   color: var(--text-secondary);
   margin: 0;
 }
@@ -44,7 +45,7 @@
 }
 
 .btn-primary:hover {
-  background: var(--primary-dark);
+  background: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -255,7 +256,7 @@
 .empty-state i {
   font-size: 4rem;
   color: var(--text-tertiary);
-  margin-bottom: 1rem;
+  color: white;
 }
 
 .empty-state h3 {
@@ -267,7 +268,27 @@
 .empty-state p {
   font-size: 1rem;
   color: var(--text-secondary);
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2rem 0;
+}
+
+.empty-state .btn-primary {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.empty-state .btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+}
+
+.empty-state .btn-primary i {
+  font-size: 1.1rem;
 }
 
 .loading-state {

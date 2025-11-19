@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../../api/authApi';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -61,15 +62,15 @@ const Login = () => {
     setApiError('');
 
     try {
-      const response = await login({
-        login: formData.email,
-        password: formData.password
-      });
+      const result = await authLogin(formData.email, formData.password);
 
-      console.log('Login successful:', response);
-      
-      // Redirect to dashboard
-      navigate('/');
+      if (result.success) {
+        console.log('Login successful');
+        // Redirect to dashboard
+        navigate('/');
+      } else {
+        setApiError(result.message || 'Invalid email or password');
+      }
     } catch (error) {
       console.error('Login error:', error);
       setApiError(error.message || 'Invalid email or password');
