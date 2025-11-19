@@ -15,15 +15,6 @@ const Dashboard = () => {
   useEffect(() => {
     loadData();
     
-<<<<<<< HEAD
-    // Auto-refresh dashboard data every 10 seconds
-    const intervalId = setInterval(() => {
-      loadData();
-    }, 10000);
-    
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-=======
     // Auto-refresh every 10 seconds
     const interval = setInterval(() => {
       loadData();
@@ -31,7 +22,6 @@ const Dashboard = () => {
     
     // Cleanup interval on unmount
     return () => clearInterval(interval);
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   }, []);
 
   const loadData = async () => {

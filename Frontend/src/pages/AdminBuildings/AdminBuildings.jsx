@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { API_BASE_URL } from '../../config/apiConfig';
-import { useAuth } from '../../context/AuthContext';
-import PermissionGate from '../../components/PermissionGate/PermissionGate';
-=======
 import { getBuildings, createBuilding, updateBuilding, deleteBuilding, getCampuses } from '../../api/buildingApi';
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
@@ -160,21 +154,6 @@ const AdminBuildings = () => {
       render: (value) => value || 'N/A'
     },
     { 
-<<<<<<< HEAD
-      key: 'location', 
-      label: 'Location',
-      render: (value) => value || 'N/A'
-    },
-    { 
-      key: 'total_rooms', 
-      label: 'Total Rooms',
-      render: (value) => value || 0
-    },
-    { 
-      key: 'total_capacity', 
-      label: 'Total Capacity',
-      render: (value) => value ? value.toLocaleString() : 0
-=======
       key: 'code', 
       label: 'Building Code',
       render: (value) => value || 'N/A'
@@ -202,33 +181,12 @@ const AdminBuildings = () => {
           {value || 'active'}
         </span>
       )
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     },
     { 
       key: 'actions', 
       label: 'Actions',
       render: (_, row) => (
         <div className="table-actions">
-<<<<<<< HEAD
-          <PermissionGate permissions={["space.view", "maintenance.update"]} requireAll={false}>
-            <button 
-              className="btn-icon btn-edit" 
-              onClick={() => handleOpenModal(row)}
-              title="Edit"
-            >
-              <i className="fas fa-edit"></i>
-            </button>
-          </PermissionGate>
-          <PermissionGate permissions={["maintenance.delete"]} requireAll={false} role="super-admin">
-            <button 
-              className="btn-icon btn-delete" 
-              onClick={() => handleDelete(row.id, row.name)}
-              title="Delete"
-            >
-              <i className="fas fa-trash"></i>
-            </button>
-          </PermissionGate>
-=======
           <button 
             className="btn-icon btn-edit" 
             onClick={() => handleOpenModal(row)}
@@ -243,7 +201,6 @@ const AdminBuildings = () => {
           >
             <i className="fas fa-trash"></i>
           </button>
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
         </div>
       )
     }

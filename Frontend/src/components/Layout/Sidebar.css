@@ -121,8 +121,6 @@
   box-shadow: var(--shadow-md);
 }
 
-<<<<<<< HEAD
-=======
 /* .nav-link.active::before {
   content: '';
   position: absolute;
@@ -135,7 +133,6 @@
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 } */
 
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 .nav-link.disabled {
   opacity: 0.5;
   cursor: not-allowed;

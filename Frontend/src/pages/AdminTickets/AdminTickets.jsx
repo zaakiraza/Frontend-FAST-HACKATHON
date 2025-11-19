@@ -18,11 +18,7 @@ const AdminTickets = () => {
   const [filters, setFilters] = useState({
     priority: 'all',
     status: 'all',
-<<<<<<< HEAD
-    search: ''
-=======
     category: 'all'
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
@@ -169,28 +165,12 @@ const AdminTickets = () => {
   };
 
   const filteredTickets = tickets.filter(ticket => {
-<<<<<<< HEAD
-    // Search filter
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      const matchesSearch = 
-        ticket.id?.toLowerCase().includes(searchLower) ||
-        ticket.title?.toLowerCase().includes(searchLower) ||
-        ticket.building?.toLowerCase().includes(searchLower) ||
-        ticket.location?.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
-    }
-    
-=======
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     // Priority filter
     if (filters.priority !== 'all' && ticket.priority !== filters.priority) return false;
     
     // Status filter
     if (filters.status !== 'all' && ticket.status !== filters.status) return false;
     
-<<<<<<< HEAD
-=======
     // Category filter
     if (filters.category !== 'all' && ticket.category !== filters.category) return false;
     
@@ -207,17 +187,16 @@ const AdminTickets = () => {
       );
     }
     
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     return true;
   });
 
-  const handleSearch = (term, activeFilters) => {
-    setSearchTerm(term);
-    setFilters(prev => ({
-      ...prev,
-      ...activeFilters
-    }));
-  };
+  // const handleSearch = (term, activeFilters) => {
+  //   setSearchTerm(term);
+  //   setFilters(prev => ({
+  //     ...prev,
+  //     ...activeFilters
+  //   }));
+  // };
 
   const priorityIcons = {
     critical: 'fas fa-exclamation-circle',
@@ -348,20 +327,13 @@ const AdminTickets = () => {
 
       <AdvancedSearch
         onSearch={handleSearch}
-<<<<<<< HEAD
-        placeholder="Search tickets by ID, title, building, or location..."
-=======
         placeholder="Search tickets by title, location, building..."
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
         filters={[
           {
             key: 'priority',
             label: 'Priority',
             options: [
-<<<<<<< HEAD
-=======
               { value: 'all', label: 'All Priorities' },
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
               { value: 'critical', label: 'Critical' },
               { value: 'high', label: 'High' },
               { value: 'medium', label: 'Medium' },
@@ -372,20 +344,12 @@ const AdminTickets = () => {
             key: 'status',
             label: 'Status',
             options: [
-<<<<<<< HEAD
-=======
               { value: 'all', label: 'All Status' },
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
               { value: 'open', label: 'Open' },
               { value: 'in-progress', label: 'In Progress' },
               { value: 'resolved', label: 'Resolved' },
               { value: 'closed', label: 'Closed' }
             ]
-<<<<<<< HEAD
-          }
-        ]}
-      />
-=======
           },
           {
             key: 'category',
@@ -413,7 +377,6 @@ const AdminTickets = () => {
           </span>
         </div>
       </div>
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
       <div className="tickets-table-wrapper">
         <SimpleTable 

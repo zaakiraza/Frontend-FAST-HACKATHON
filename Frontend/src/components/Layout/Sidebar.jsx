@@ -1,23 +1,8 @@
-<<<<<<< HEAD
-import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import "./Sidebar.css";
-
-const Sidebar = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-  const { hasPermission, hasAnyPermission, isSuperAdmin, loading, user, permissions } = useAuth();
-
-  // Debug logging
-  console.log('Sidebar - User:', user);
-  console.log('Sidebar - Permissions:', permissions);
-  console.log('Sidebar - Loading:', loading);
-=======
 import { NavLink,useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
   const menuItems = [
     { 
@@ -159,24 +144,10 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-<<<<<<< HEAD
-    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
-      <div
-        className="sidebar-header"
-        onClick={() => {
-          navigate("/");
-        }}
-      >
-        <div className="sidebar-logo">
-          <span className="logo-icon">
-            <i className="fas fa-graduation-cap"></i>
-          </span>
-=======
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo" onClick={()=>{navigate("/")}}>
           <span className="logo-icon"><i className="fas fa-graduation-cap"></i></span>
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
           <span className="logo-text">Smart Campus</span>
         </div>
         <button

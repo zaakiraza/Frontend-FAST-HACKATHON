@@ -18,13 +18,7 @@ const Space = () => {
     loadOccupancyData(); // Load occupancy data on mount
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    applyFilter();
-  }, [filter, allOccupancyData]);
-=======
   // No need for separate useEffect for filter - we'll filter on the frontend
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
   const loadInitialData = async () => {
     try {
@@ -48,8 +42,6 @@ const Space = () => {
       ]);
       
       setSummary(summaryData);
-<<<<<<< HEAD
-=======
       setHeatmap(heatmapData);
       setSuggestions(suggestionsData);
     } catch (error) {
@@ -68,7 +60,6 @@ const Space = () => {
       const data = await getSpaceOccupancy('all'); // Always fetch all data
       console.log('Occupancy data:', data);
       console.log('First item:', data[0]);
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
       
       // Transform occupancy data to add calculated status
       const transformedData = occupancyData.map(room => {

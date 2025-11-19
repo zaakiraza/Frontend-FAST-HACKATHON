@@ -13,20 +13,13 @@ import Profile from '../pages/Profile/Profile';
 import Login from '../pages/Login/Login';
 import Signup from '../pages/Signup/Signup';
 import NotFound from '../pages/NotFound/NotFound';
-<<<<<<< HEAD
-import Profile from '../pages/Profile/Profile';
-=======
 import { useAuth } from '../context/AuthContext';
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
   if (loading) {
-<<<<<<< HEAD
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
-=======
     return (
       <div style={{
         display: 'flex',
@@ -39,7 +32,6 @@ const ProtectedRoute = ({ children }) => {
         Loading...
       </div>
     );
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   }
   
   if (!isAuthenticated) {

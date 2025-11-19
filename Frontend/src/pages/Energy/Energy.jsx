@@ -36,16 +36,6 @@ const Energy = () => {
   useEffect(() => {
     loadInitialData();
     
-<<<<<<< HEAD
-    // Auto-refresh energy data every 10 seconds
-    const intervalId = setInterval(() => {
-      loadInitialData();
-    }, 10000);
-    
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-=======
     // Auto-refresh summary and anomalies every 10 seconds
     const interval = setInterval(() => {
       loadInitialData();
@@ -54,27 +44,17 @@ const Energy = () => {
     // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, [currentPage]);
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
 
   useEffect(() => {
     loadChartData();
     
     // Auto-refresh chart data every 10 seconds
-<<<<<<< HEAD
-    const intervalId = setInterval(() => {
-      loadChartData();
-    }, 10000);
-    
-    // Cleanup interval on component unmount or when filters change
-    return () => clearInterval(intervalId);
-=======
     const chartInterval = setInterval(() => {
       loadChartData();
     }, 10000);
     
     // Cleanup interval on unmount
     return () => clearInterval(chartInterval);
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
   }, [selectedBuilding, timeRange]);
 
   const loadInitialData = async () => {
@@ -140,14 +120,6 @@ const Energy = () => {
 
   const loadChartData = async () => {
     try {
-<<<<<<< HEAD
-      console.log('Loading chart data with filters:', { selectedBuilding, timeRange });
-      const data = await getEnergyTimeSeries(selectedBuilding, timeRange);
-      console.log('Received data from API:', data);
-      const chartData = Array.isArray(data) ? data : data.data;
-      console.log('Setting chart data:', chartData);
-      setChartData(chartData);
-=======
       console.log('Loading chart data with:', { selectedBuilding, timeRange });
       const response = await getEnergyTimeSeries(selectedBuilding, timeRange);
       console.log('Chart data received:', response);
@@ -167,7 +139,6 @@ const Energy = () => {
       
       console.log('Processed chart data:', data);
       setChartData(data);
->>>>>>> 70f455bc589ab8d18791203d7b70203371692ab7
     } catch (error) {
       console.error('Error loading chart data:', error);
       // Set empty array instead of showing error
