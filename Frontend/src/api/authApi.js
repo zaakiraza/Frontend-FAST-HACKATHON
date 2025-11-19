@@ -1,6 +1,7 @@
 // Authentication API
 import { API_BASE_URL } from '../config/apiConfig';
 
+// Updates
 const apiCall = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
