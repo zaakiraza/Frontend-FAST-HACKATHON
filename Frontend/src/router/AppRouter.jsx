@@ -1,5 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from '../components/Auth/ProtectedRoute';
 import Layout from '../components/Layout/Layout';
+import Login from '../pages/Login/Login';
+import Unauthorized from '../pages/Unauthorized/Unauthorized';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Energy from '../pages/Energy/Energy';
 import Space from '../pages/Space/Space';
@@ -12,22 +15,86 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="energy" element={<Energy />} />
-          <Route path="space" element={<Space />} />
-          <Route path="maintenance" element={<Maintenance />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={
+              <ProtectedRoute requiredPermission="dashboard.view">
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
           
-          {/* Admin Routes */}
-          <Route path="admin/campuses" element={<AdminCampuses />} />
-          <Route path="admin/rooms" element={<AdminRooms />} />
-          <Route path="admin/tickets" element={<AdminTickets />} />
+          <Route
+            path="energy"
+            element={
+              <ProtectedRoute requiredPermission="energy.view">
+                <Energy />
+              </ProtectedRoute>
+            }
+          />
           
-          {/* Disabled routes - can be uncommented when ready */}
-          {/* <Route path="security" element={<ComingSoon page="Security" />} /> */}
-          {/* <Route path="mobility" element={<ComingSoon page="Mobility" />} /> */}
-          {/* <Route path="connectivity" element={<ComingSoon page="Connectivity" />} /> */}
+          <Route
+            path="space"
+            element={
+              <ProtectedRoute requiredPermission="space.view">
+                <Space />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="maintenance"
+            element={
+              <ProtectedRoute requiredPermission="maintenance.view">
+                <Maintenance />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes - Require specific permissions */}
+          <Route
+            path="admin/campuses"
+            element={
+              <ProtectedRoute requiredAnyPermissions={['users.view', 'roles.view']}>
+                <AdminCampuses />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="admin/rooms"
+            element={
+              <ProtectedRoute requiredAnyPermissions={['space.view', 'users.view']}>
+                <AdminRooms />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="admin/tickets"
+            element={
+              <ProtectedRoute requiredPermission="maintenance.view-all">
+                <AdminTickets />
+              </ProtectedRoute>
+            }
+          />
         </Route>
+
+        {/* Catch all - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

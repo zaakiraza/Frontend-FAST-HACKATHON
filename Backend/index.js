@@ -17,6 +17,10 @@ app.get('/health', (req, res) => {
 });
 
 // Import routes
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const roleRoutes = require('./src/routes/roleRoutes');
+const permissionRoutes = require('./src/routes/permissionRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const energyRoutes = require('./src/routes/energyRoutes');
 const maintenanceRoutes = require('./src/routes/maintenanceRoutes');
@@ -42,6 +46,10 @@ app.get('/api/test-db', async (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/roles', roleRoutes);
+app.use('/api/permissions', permissionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
