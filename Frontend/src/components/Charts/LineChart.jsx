@@ -1,6 +1,20 @@
 import './LineChart.css';
 
 const LineChart = ({ data, title, height = 200 }) => {
+  // Handle empty or invalid data
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="line-chart">
+        {title && <div className="chart-title">{title}</div>}
+        <div className="chart-wrapper" style={{ height: `${height}px` }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#999' }}>
+            No data available
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate max value for scaling
   const maxValue = Math.max(...data.map(d => d.value));
   const minValue = Math.min(...data.map(d => d.value));

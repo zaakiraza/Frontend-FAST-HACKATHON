@@ -41,6 +41,7 @@ const Space = () => {
   const loadOccupancyData = async () => {
     try {
       const data = await getSpaceOccupancy(filter);
+      console.log('Occupancy data:', data);
       setOccupancy(data);
     } catch (error) {
       console.error('Error loading occupancy data:', error);

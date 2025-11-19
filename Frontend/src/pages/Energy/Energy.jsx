@@ -92,6 +92,10 @@ const Energy = () => {
     return <div className="loading-page">Loading energy data...</div>;
   }
 
+  if (!summary) {
+    return <div className="loading-page">No energy data available</div>;
+  }
+
   return (
     <div className="energy-page">
       <div className="page-header">
@@ -102,7 +106,7 @@ const Energy = () => {
       <div className="energy-grid">
         <InfoCard
           title="Total Consumption"
-          value={`${summary.totalConsumption.toLocaleString()} kWh`}
+          value={`${(summary.totalConsumption || 0).toLocaleString()} kWh`}
           icon={<i className="fas fa-bolt"></i>}
           subtitle="Last 24 hours"
           color="primary"
@@ -110,7 +114,7 @@ const Energy = () => {
         
         <InfoCard
           title="Total Cost"
-          value={`$${summary.totalCost.toLocaleString()}`}
+          value={`$${(summary.totalCost || 0).toLocaleString()}`}
           icon={<i className="fas fa-dollar-sign"></i>}
           subtitle="Estimated billing"
           color="success"
@@ -118,7 +122,7 @@ const Energy = () => {
         
         <InfoCard
           title="Efficiency Score"
-          value={`${summary.avgEfficiency}%`}
+          value={`${(summary.avgEfficiency || 0).toFixed(1)}%`}
           icon={<i className="fas fa-chart-bar"></i>}
           subtitle="Campus average"
           trend="up"
@@ -128,7 +132,7 @@ const Energy = () => {
         
         <InfoCard
           title="Anomalies Detected"
-          value={summary.anomalyCount}
+          value={summary.anomalyCount || 0}
           icon={<i className="fas fa-exclamation-triangle"></i>}
           subtitle="Requires attention"
           color="warning"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRooms, createRoom, updateRoom, deleteRoom, getCampuses } from '../../api/roomApi';
+import { getRooms, createRoom, updateRoom, deleteRoom, getCampuses, getBuildings } from '../../api/roomApi';
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
@@ -8,6 +8,7 @@ import './AdminRooms.css';
 const AdminRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [campuses, setCampuses] = useState([]);
+  const [buildings, setBuildings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
@@ -19,10 +20,11 @@ const AdminRooms = () => {
   });
   const [formData, setFormData] = useState({
     campus_id: '',
+    building_id: '',
     room_number: '',
     room_name: '',
     building: '',
-    floor: '',
+    floor: '1',
     room_type: 'classroom',
     capacity: '',
     current_occupancy: 0,
@@ -59,14 +61,15 @@ const AdminRooms = () => {
     setTimeout(() => setAlert(null), 5000);
   };
 
-  const handleOpenModal = (room = null) => {
+  const handleOpenModal = async (room = null) => {
     if (room) {
       setEditingRoom(room);
       setFormData({
-        campus_id: room.campus_id,
+        campus_id: room.campus_id || '',
+        building_id: room.building_id || '',
         room_number: room.room_number,
         room_name: room.room_name,
-        building: room.building,
+        building: room.building_name || room.building || '',
         floor: room.floor,
         room_type: room.room_type,
         capacity: room.capacity,
@@ -78,14 +81,25 @@ const AdminRooms = () => {
         class_subject: '',
         instructor: ''
       });
+      // Load buildings for the selected campus
+      if (room.campus_id) {
+        try {
+          const buildingsData = await getBuildings(room.campus_id);
+          setBuildings(buildingsData);
+        } catch (error) {
+          console.error('Error loading buildings:', error);
+          setBuildings([]);
+        }
+      }
     } else {
       setEditingRoom(null);
       setFormData({
         campus_id: '',
+        building_id: '',
         room_number: '',
         room_name: '',
         building: '',
-        floor: '',
+        floor: '1',
         room_type: 'classroom',
         capacity: '',
         current_occupancy: 0,
@@ -96,6 +110,7 @@ const AdminRooms = () => {
         class_subject: '',
         instructor: ''
       });
+      setBuildings([]);
     }
     setShowModal(true);
   };
@@ -105,12 +120,32 @@ const AdminRooms = () => {
     setEditingRoom(null);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Load buildings when campus is selected
+    if (name === 'campus_id' && value) {
+      console.log('Campus selected:', value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        building_id: '' // Reset building when campus changes
+      }));
+      try {
+        console.log('Fetching buildings for campus:', value);
+        const buildingsData = await getBuildings(value);
+        console.log('Buildings fetched:', buildingsData);
+        setBuildings(buildingsData);
+      } catch (error) {
+        console.error('Error loading buildings:', error);
+        setBuildings([]);
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleAddSchedule = () => {
@@ -146,8 +181,8 @@ const AdminRooms = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.campus_id || !formData.room_number || !formData.room_name) {
-      showAlert('Please fill in all required fields', 'error');
+    if (!formData.campus_id || !formData.building_id || !formData.room_number || !formData.room_name) {
+      showAlert('Please fill in all required fields (Campus, Building, Room Number, Room Name)', 'error');
       return;
     }
 
@@ -346,6 +381,25 @@ const AdminRooms = () => {
             </select>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="building_id">Building *</label>
+            <select
+              id="building_id"
+              name="building_id"
+              value={formData.building_id}
+              onChange={handleInputChange}
+              required
+              disabled={!formData.campus_id}
+            >
+              <option value="">Select Building</option>
+              {buildings.map(building => (
+                <option key={building.building_id} value={building.building_id}>
+                  {building.building_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="room_number">Room Number *</label>
@@ -376,18 +430,6 @@ const AdminRooms = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="building">Building</label>
-              <input
-                type="text"
-                id="building"
-                name="building"
-                value={formData.building}
-                onChange={handleInputChange}
-                placeholder="Building A"
-              />
-            </div>
-
-            <div className="form-group">
               <label htmlFor="floor">Floor</label>
               <input
                 type="number"
@@ -395,13 +437,12 @@ const AdminRooms = () => {
                 name="floor"
                 value={formData.floor}
                 onChange={handleInputChange}
-                placeholder="3"
+                placeholder="1"
                 min="0"
+                required
               />
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="room_type">Room Type</label>
               <select
@@ -418,7 +459,9 @@ const AdminRooms = () => {
                 <option value="office">Office</option>
               </select>
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="capacity">Capacity</label>
               <input
@@ -429,11 +472,10 @@ const AdminRooms = () => {
                 onChange={handleInputChange}
                 placeholder="50"
                 min="1"
+                required
               />
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="current_occupancy">Current Occupancy</label>
               <input
@@ -446,7 +488,9 @@ const AdminRooms = () => {
                 min="0"
               />
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="status">Status</label>
               <select

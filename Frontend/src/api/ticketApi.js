@@ -1,8 +1,27 @@
-// Ticket API - Mock implementation
+// Ticket API
 import { ticketData, campusData } from './mockData';
+import { USE_MOCK_API, API_BASE_URL } from '../config/apiConfig';
 
 // Simulate API delay
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
+
+// API call helper
+const apiCall = async (endpoint, options = {}) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'API request failed');
+  }
+  
+  return response.json();
+};
 
 let tickets = [...ticketData];
 let nextTicketId = Math.max(...tickets.map(t => t.ticket_id)) + 1;
@@ -17,30 +36,29 @@ let nextTicketId = Math.max(...tickets.map(t => t.ticket_id)) + 1;
  * @returns {Promise<Array>} Array of ticket objects
  */
 export const getTickets = async (filters = {}) => {
-  await delay();
-  
-  let filteredTickets = [...tickets];
-  
-  if (filters.campus_id) {
-    filteredTickets = filteredTickets.filter(t => t.campus_id === parseInt(filters.campus_id));
+  if (USE_MOCK_API) {
+    await delay();
+    let filteredTickets = [...tickets];
+    if (filters.campus_id) {
+      filteredTickets = filteredTickets.filter(t => t.campus_id === parseInt(filters.campus_id));
+    }
+    if (filters.priority) {
+      filteredTickets = filteredTickets.filter(t => t.priority === filters.priority);
+    }
+    if (filters.status) {
+      filteredTickets = filteredTickets.filter(t => t.status === filters.status);
+    }
+    if (filters.category) {
+      filteredTickets = filteredTickets.filter(t => t.category === filters.category);
+    }
+    filteredTickets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return filteredTickets;
   }
   
-  if (filters.priority) {
-    filteredTickets = filteredTickets.filter(t => t.priority === filters.priority);
-  }
-  
-  if (filters.status) {
-    filteredTickets = filteredTickets.filter(t => t.status === filters.status);
-  }
-  
-  if (filters.category) {
-    filteredTickets = filteredTickets.filter(t => t.category === filters.category);
-  }
-  
-  // Sort by created_at descending (newest first)
-  filteredTickets.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  
-  return filteredTickets;
+  const queryParams = new URLSearchParams(filters).toString();
+  const url = queryParams ? `/admin/tickets?${queryParams}` : '/admin/tickets';
+  const response = await apiCall(url);
+  return response.data;
 };
 
 /**
@@ -49,12 +67,17 @@ export const getTickets = async (filters = {}) => {
  * @returns {Promise<Object>} Ticket object
  */
 export const getTicketById = async (ticketId) => {
-  await delay();
-  const ticket = tickets.find(t => t.ticket_id === ticketId);
-  if (!ticket) {
-    throw new Error(`Ticket with ID ${ticketId} not found`);
+  if (USE_MOCK_API) {
+    await delay();
+    const ticket = tickets.find(t => t.ticket_id === ticketId);
+    if (!ticket) {
+      throw new Error(`Ticket with ID ${ticketId} not found`);
+    }
+    return { ...ticket };
   }
-  return { ...ticket };
+  
+  const response = await apiCall(`/admin/tickets/${ticketId}`);
+  return response.data;
 };
 
 /**
@@ -62,8 +85,13 @@ export const getTicketById = async (ticketId) => {
  * @returns {Promise<Array>} Array of campus objects
  */
 export const getCampuses = async () => {
-  await delay(300);
-  return [...campusData];
+  if (USE_MOCK_API) {
+    await delay(300);
+    return [...campusData];
+  }
+  
+  const response = await apiCall('/admin/campuses');
+  return response.data;
 };
 
 /**
@@ -84,28 +112,34 @@ export const getCampuses = async () => {
  * @returns {Promise<Object>} Created ticket object
  */
 export const createTicket = async (ticketData) => {
-  await delay(600);
+  if (USE_MOCK_API) {
+    await delay(600);
+    const newTicket = {
+      ticket_id: nextTicketId++,
+      campus_id: parseInt(ticketData.campus_id),
+      title: ticketData.title,
+      description: ticketData.description,
+      category: ticketData.category || 'other',
+      priority: ticketData.priority || 'medium',
+      status: ticketData.status || 'open',
+      location: ticketData.location || '',
+      building: ticketData.building || '',
+      room: ticketData.room || '',
+      reported_by: ticketData.reported_by || 'System',
+      assigned_to: ticketData.assigned_to || 'Unassigned',
+      estimated_cost: parseFloat(ticketData.estimated_cost) || 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    tickets.push(newTicket);
+    return { ...newTicket };
+  }
   
-  const newTicket = {
-    ticket_id: nextTicketId++,
-    campus_id: parseInt(ticketData.campus_id),
-    title: ticketData.title,
-    description: ticketData.description,
-    category: ticketData.category || 'other',
-    priority: ticketData.priority || 'medium',
-    status: ticketData.status || 'open',
-    location: ticketData.location || '',
-    building: ticketData.building || '',
-    room: ticketData.room || '',
-    reported_by: ticketData.reported_by || 'System',
-    assigned_to: ticketData.assigned_to || 'Unassigned',
-    estimated_cost: parseFloat(ticketData.estimated_cost) || 0,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  
-  tickets.push(newTicket);
-  return { ...newTicket };
+  const response = await apiCall('/admin/tickets', {
+    method: 'POST',
+    body: JSON.stringify(ticketData),
+  });
+  return response.data;
 };
 
 /**
@@ -115,31 +149,36 @@ export const createTicket = async (ticketData) => {
  * @returns {Promise<Object>} Updated ticket object
  */
 export const updateTicket = async (ticketId, ticketData) => {
-  await delay(600);
-  
-  const index = tickets.findIndex(t => t.ticket_id === ticketId);
-  if (index === -1) {
-    throw new Error(`Ticket with ID ${ticketId} not found`);
+  if (USE_MOCK_API) {
+    await delay(600);
+    const index = tickets.findIndex(t => t.ticket_id === ticketId);
+    if (index === -1) {
+      throw new Error(`Ticket with ID ${ticketId} not found`);
+    }
+    tickets[index] = {
+      ...tickets[index],
+      campus_id: parseInt(ticketData.campus_id) || tickets[index].campus_id,
+      title: ticketData.title || tickets[index].title,
+      description: ticketData.description || tickets[index].description,
+      category: ticketData.category || tickets[index].category,
+      priority: ticketData.priority || tickets[index].priority,
+      status: ticketData.status || tickets[index].status,
+      location: ticketData.location || tickets[index].location,
+      building: ticketData.building || tickets[index].building,
+      room: ticketData.room || tickets[index].room,
+      reported_by: ticketData.reported_by || tickets[index].reported_by,
+      assigned_to: ticketData.assigned_to || tickets[index].assigned_to,
+      estimated_cost: parseFloat(ticketData.estimated_cost) || tickets[index].estimated_cost,
+      updated_at: new Date().toISOString()
+    };
+    return { ...tickets[index] };
   }
   
-  tickets[index] = {
-    ...tickets[index],
-    campus_id: parseInt(ticketData.campus_id) || tickets[index].campus_id,
-    title: ticketData.title || tickets[index].title,
-    description: ticketData.description || tickets[index].description,
-    category: ticketData.category || tickets[index].category,
-    priority: ticketData.priority || tickets[index].priority,
-    status: ticketData.status || tickets[index].status,
-    location: ticketData.location || tickets[index].location,
-    building: ticketData.building || tickets[index].building,
-    room: ticketData.room || tickets[index].room,
-    reported_by: ticketData.reported_by || tickets[index].reported_by,
-    assigned_to: ticketData.assigned_to || tickets[index].assigned_to,
-    estimated_cost: parseFloat(ticketData.estimated_cost) || tickets[index].estimated_cost,
-    updated_at: new Date().toISOString()
-  };
-  
-  return { ...tickets[index] };
+  const response = await apiCall(`/admin/tickets/${ticketId}`, {
+    method: 'PUT',
+    body: JSON.stringify(ticketData),
+  });
+  return response.data;
 };
 
 /**
@@ -148,21 +187,25 @@ export const updateTicket = async (ticketId, ticketData) => {
  * @returns {Promise<Object>} Deletion confirmation
  */
 export const deleteTicket = async (ticketId) => {
-  await delay(400);
-  
-  const index = tickets.findIndex(t => t.ticket_id === ticketId);
-  if (index === -1) {
-    throw new Error(`Ticket with ID ${ticketId} not found`);
+  if (USE_MOCK_API) {
+    await delay(400);
+    const index = tickets.findIndex(t => t.ticket_id === ticketId);
+    if (index === -1) {
+      throw new Error(`Ticket with ID ${ticketId} not found`);
+    }
+    const deletedTicket = tickets[index];
+    tickets.splice(index, 1);
+    return { 
+      success: true, 
+      message: `Ticket "${deletedTicket.title}" deleted successfully`,
+      deleted: deletedTicket
+    };
   }
   
-  const deletedTicket = tickets[index];
-  tickets.splice(index, 1);
-  
-  return { 
-    success: true, 
-    message: `Ticket "${deletedTicket.title}" deleted successfully`,
-    deleted: deletedTicket
-  };
+  const response = await apiCall(`/admin/tickets/${ticketId}`, {
+    method: 'DELETE',
+  });
+  return response;
 };
 
 /**
@@ -171,40 +214,44 @@ export const deleteTicket = async (ticketId) => {
  * @returns {Promise<Object>} Ticket statistics
  */
 export const getTicketStats = async (campusId = null) => {
-  await delay();
-  
-  let filteredTickets = tickets;
-  if (campusId) {
-    filteredTickets = tickets.filter(t => t.campus_id === campusId);
+  if (USE_MOCK_API) {
+    await delay();
+    let filteredTickets = tickets;
+    if (campusId) {
+      filteredTickets = tickets.filter(t => t.campus_id === campusId);
+    }
+    return {
+      total_tickets: filteredTickets.length,
+      by_priority: {
+        critical: filteredTickets.filter(t => t.priority === 'critical').length,
+        high: filteredTickets.filter(t => t.priority === 'high').length,
+        medium: filteredTickets.filter(t => t.priority === 'medium').length,
+        low: filteredTickets.filter(t => t.priority === 'low').length
+      },
+      by_status: {
+        open: filteredTickets.filter(t => t.status === 'open').length,
+        'in-progress': filteredTickets.filter(t => t.status === 'in-progress').length,
+        resolved: filteredTickets.filter(t => t.status === 'resolved').length,
+        closed: filteredTickets.filter(t => t.status === 'closed').length
+      },
+      by_category: {
+        electrical: filteredTickets.filter(t => t.category === 'electrical').length,
+        plumbing: filteredTickets.filter(t => t.category === 'plumbing').length,
+        hvac: filteredTickets.filter(t => t.category === 'hvac').length,
+        structural: filteredTickets.filter(t => t.category === 'structural').length,
+        equipment: filteredTickets.filter(t => t.category === 'equipment').length,
+        cleaning: filteredTickets.filter(t => t.category === 'cleaning').length,
+        security: filteredTickets.filter(t => t.category === 'security').length,
+        other: filteredTickets.filter(t => t.category === 'other').length
+      },
+      total_estimated_cost: filteredTickets.reduce((sum, t) => sum + t.estimated_cost, 0),
+      avg_response_time: '2.3 hours'
+    };
   }
   
-  return {
-    total_tickets: filteredTickets.length,
-    by_priority: {
-      critical: filteredTickets.filter(t => t.priority === 'critical').length,
-      high: filteredTickets.filter(t => t.priority === 'high').length,
-      medium: filteredTickets.filter(t => t.priority === 'medium').length,
-      low: filteredTickets.filter(t => t.priority === 'low').length
-    },
-    by_status: {
-      open: filteredTickets.filter(t => t.status === 'open').length,
-      'in-progress': filteredTickets.filter(t => t.status === 'in-progress').length,
-      resolved: filteredTickets.filter(t => t.status === 'resolved').length,
-      closed: filteredTickets.filter(t => t.status === 'closed').length
-    },
-    by_category: {
-      electrical: filteredTickets.filter(t => t.category === 'electrical').length,
-      plumbing: filteredTickets.filter(t => t.category === 'plumbing').length,
-      hvac: filteredTickets.filter(t => t.category === 'hvac').length,
-      structural: filteredTickets.filter(t => t.category === 'structural').length,
-      equipment: filteredTickets.filter(t => t.category === 'equipment').length,
-      cleaning: filteredTickets.filter(t => t.category === 'cleaning').length,
-      security: filteredTickets.filter(t => t.category === 'security').length,
-      other: filteredTickets.filter(t => t.category === 'other').length
-    },
-    total_estimated_cost: filteredTickets.reduce((sum, t) => sum + t.estimated_cost, 0),
-    avg_response_time: '2.3 hours' // Mock value
-  };
+  const url = campusId ? `/admin/tickets/stats?campus_id=${campusId}` : '/admin/tickets/stats';
+  const response = await apiCall(url);
+  return response.data;
 };
 
 /**
@@ -212,8 +259,13 @@ export const getTicketStats = async (campusId = null) => {
  * @returns {Promise<Array>} Array of high and critical priority tickets
  */
 export const getHighPriorityTickets = async () => {
-  await delay();
-  return tickets.filter(t => t.priority === 'high' || t.priority === 'critical');
+  if (USE_MOCK_API) {
+    await delay();
+    return tickets.filter(t => t.priority === 'high' || t.priority === 'critical');
+  }
+  
+  const response = await apiCall('/admin/tickets/high-priority');
+  return response.data;
 };
 
 /**
@@ -221,6 +273,11 @@ export const getHighPriorityTickets = async () => {
  * @returns {Promise<Array>} Array of unassigned tickets
  */
 export const getUnassignedTickets = async () => {
-  await delay();
-  return tickets.filter(t => t.assigned_to === 'Unassigned' || t.assigned_to === '');
+  if (USE_MOCK_API) {
+    await delay();
+    return tickets.filter(t => t.assigned_to === 'Unassigned' || t.assigned_to === '');
+  }
+  
+  const response = await apiCall('/admin/tickets/unassigned');
+  return response.data;
 };

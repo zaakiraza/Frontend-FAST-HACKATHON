@@ -9,6 +9,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: '/maintenance', label: 'Maintenance', icon: 'fas fa-wrench', enabled: true },
     { path: null, label: 'Admin', icon: 'fas fa-cog', enabled: true, isSection: true },
     { path: '/admin/campuses', label: 'Campus Management', icon: 'fas fa-university', enabled: true },
+    { path: '/admin/buildings', label: 'Building Management', icon: 'fas fa-building', enabled: true },
     { path: '/admin/rooms', label: 'Room Management', icon: 'fas fa-door-open', enabled: true },
     { path: '/admin/tickets', label: 'Ticket Management', icon: 'fas fa-ticket-alt', enabled: true },
     { path: '/security', label: 'Security', icon: 'fas fa-lock', enabled: false },

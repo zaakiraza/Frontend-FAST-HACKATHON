@@ -1,38 +1,59 @@
-// Room API - Mock implementation
+// Room API
+import { USE_MOCK_API, API_BASE_URL } from '../config/apiConfig';
 import { roomData, campusData } from './mockData';
 
 // Simulate API delay
 const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Mock data state
 let rooms = [...roomData];
 let nextRoomId = Math.max(...rooms.map(r => r.room_id)) + 1;
+
+// Helper function for API calls
+const apiCall = async (endpoint, options = {}) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
 
 /**
  * Get all rooms with optional filtering
  * @param {Object} filters - Optional filters
- * @param {number} filters.campus_id - Filter by campus ID
- * @param {string} filters.room_type - Filter by room type
- * @param {string} filters.status - Filter by status
  * @returns {Promise<Array>} Array of room objects
  */
 export const getRooms = async (filters = {}) => {
-  await delay();
-  
-  let filteredRooms = [...rooms];
-  
-  if (filters.campus_id) {
-    filteredRooms = filteredRooms.filter(r => r.campus_id === parseInt(filters.campus_id));
+  if (USE_MOCK_API) {
+    await delay();
+    let filteredRooms = [...rooms];
+    
+    if (filters.campus_id) {
+      filteredRooms = filteredRooms.filter(r => r.campus_id === parseInt(filters.campus_id));
+    }
+    
+    if (filters.room_type) {
+      filteredRooms = filteredRooms.filter(r => r.room_type === filters.room_type);
+    }
+    
+    if (filters.status) {
+      filteredRooms = filteredRooms.filter(r => r.status === filters.status);
+    }
+    
+    return filteredRooms;
   }
   
-  if (filters.room_type) {
-    filteredRooms = filteredRooms.filter(r => r.room_type === filters.room_type);
-  }
-  
-  if (filters.status) {
-    filteredRooms = filteredRooms.filter(r => r.status === filters.status);
-  }
-  
-  return filteredRooms;
+  const response = await apiCall('/admin/rooms');
+  return response.data;
 };
 
 /**
@@ -41,12 +62,17 @@ export const getRooms = async (filters = {}) => {
  * @returns {Promise<Object>} Room object
  */
 export const getRoomById = async (roomId) => {
-  await delay();
-  const room = rooms.find(r => r.room_id === roomId);
-  if (!room) {
-    throw new Error(`Room with ID ${roomId} not found`);
+  if (USE_MOCK_API) {
+    await delay();
+    const room = rooms.find(r => r.room_id === roomId);
+    if (!room) {
+      throw new Error(`Room with ID ${roomId} not found`);
+    }
+    return { ...room };
   }
-  return { ...room };
+  
+  const response = await apiCall(`/admin/rooms/${roomId}`);
+  return response.data;
 };
 
 /**
@@ -54,45 +80,62 @@ export const getRoomById = async (roomId) => {
  * @returns {Promise<Array>} Array of campus objects
  */
 export const getCampuses = async () => {
-  await delay(300);
-  return [...campusData];
+  if (USE_MOCK_API) {
+    await delay(300);
+    return [...campusData];
+  }
+  
+  const response = await apiCall('/admin/campuses');
+  return response.data;
+};
+
+/**
+ * Get buildings by campus ID (for dropdown)
+ * @param {number} campusId - The campus ID
+ * @returns {Promise<Array>} Array of building objects
+ */
+export const getBuildings = async (campusId = null) => {
+  if (USE_MOCK_API) {
+    await delay(300);
+    return [];
+  }
+  
+  const endpoint = campusId ? `/admin/buildings/campus/${campusId}` : '/admin/buildings';
+  const response = await apiCall(endpoint);
+  return response.data;
 };
 
 /**
  * Create a new room
  * @param {Object} roomData - Room data
- * @param {number} roomData.campus_id - Campus ID
- * @param {string} roomData.room_number - Room number
- * @param {string} roomData.room_name - Room name
- * @param {string} roomData.building - Building name
- * @param {number} roomData.floor - Floor number
- * @param {string} roomData.room_type - Room type (classroom/lab/lecture-hall/etc)
- * @param {number} roomData.capacity - Room capacity
- * @param {number} roomData.current_occupancy - Current occupancy
- * @param {string} roomData.status - Status (available/occupied/maintenance/reserved)
- * @param {Array} roomData.scheduled_classes - Array of scheduled classes
  * @returns {Promise<Object>} Created room object
  */
 export const createRoom = async (roomData) => {
-  await delay(600);
+  if (USE_MOCK_API) {
+    await delay(600);
+    const newRoom = {
+      room_id: nextRoomId++,
+      campus_id: parseInt(roomData.campus_id),
+      room_number: roomData.room_number,
+      room_name: roomData.room_name,
+      building: roomData.building || '',
+      floor: parseInt(roomData.floor) || 0,
+      room_type: roomData.room_type || 'classroom',
+      capacity: parseInt(roomData.capacity) || 0,
+      current_occupancy: parseInt(roomData.current_occupancy) || 0,
+      status: roomData.status || 'available',
+      scheduled_classes: roomData.scheduled_classes || [],
+      created_at: new Date().toISOString()
+    };
+    rooms.push(newRoom);
+    return { ...newRoom };
+  }
   
-  const newRoom = {
-    room_id: nextRoomId++,
-    campus_id: parseInt(roomData.campus_id),
-    room_number: roomData.room_number,
-    room_name: roomData.room_name,
-    building: roomData.building || '',
-    floor: parseInt(roomData.floor) || 0,
-    room_type: roomData.room_type || 'classroom',
-    capacity: parseInt(roomData.capacity) || 0,
-    current_occupancy: parseInt(roomData.current_occupancy) || 0,
-    status: roomData.status || 'available',
-    scheduled_classes: roomData.scheduled_classes || [],
-    created_at: new Date().toISOString()
-  };
-  
-  rooms.push(newRoom);
-  return { ...newRoom };
+  const response = await apiCall('/admin/rooms', {
+    method: 'POST',
+    body: JSON.stringify(roomData),
+  });
+  return response.data;
 };
 
 /**
@@ -102,29 +145,34 @@ export const createRoom = async (roomData) => {
  * @returns {Promise<Object>} Updated room object
  */
 export const updateRoom = async (roomId, roomData) => {
-  await delay(600);
-  
-  const index = rooms.findIndex(r => r.room_id === roomId);
-  if (index === -1) {
-    throw new Error(`Room with ID ${roomId} not found`);
+  if (USE_MOCK_API) {
+    await delay(600);
+    const index = rooms.findIndex(r => r.room_id === roomId);
+    if (index === -1) {
+      throw new Error(`Room with ID ${roomId} not found`);
+    }
+    rooms[index] = {
+      ...rooms[index],
+      campus_id: parseInt(roomData.campus_id) || rooms[index].campus_id,
+      room_number: roomData.room_number || rooms[index].room_number,
+      room_name: roomData.room_name || rooms[index].room_name,
+      building: roomData.building || rooms[index].building,
+      floor: parseInt(roomData.floor) || rooms[index].floor,
+      room_type: roomData.room_type || rooms[index].room_type,
+      capacity: parseInt(roomData.capacity) || rooms[index].capacity,
+      current_occupancy: parseInt(roomData.current_occupancy) || rooms[index].current_occupancy,
+      status: roomData.status || rooms[index].status,
+      scheduled_classes: roomData.scheduled_classes || rooms[index].scheduled_classes,
+      updated_at: new Date().toISOString()
+    };
+    return { ...rooms[index] };
   }
   
-  rooms[index] = {
-    ...rooms[index],
-    campus_id: parseInt(roomData.campus_id) || rooms[index].campus_id,
-    room_number: roomData.room_number || rooms[index].room_number,
-    room_name: roomData.room_name || rooms[index].room_name,
-    building: roomData.building || rooms[index].building,
-    floor: parseInt(roomData.floor) || rooms[index].floor,
-    room_type: roomData.room_type || rooms[index].room_type,
-    capacity: parseInt(roomData.capacity) || rooms[index].capacity,
-    current_occupancy: parseInt(roomData.current_occupancy) || rooms[index].current_occupancy,
-    status: roomData.status || rooms[index].status,
-    scheduled_classes: roomData.scheduled_classes || rooms[index].scheduled_classes,
-    updated_at: new Date().toISOString()
-  };
-  
-  return { ...rooms[index] };
+  const response = await apiCall(`/admin/rooms/${roomId}`, {
+    method: 'PUT',
+    body: JSON.stringify(roomData),
+  });
+  return response.data;
 };
 
 /**
@@ -133,21 +181,25 @@ export const updateRoom = async (roomId, roomData) => {
  * @returns {Promise<Object>} Deletion confirmation
  */
 export const deleteRoom = async (roomId) => {
-  await delay(400);
-  
-  const index = rooms.findIndex(r => r.room_id === roomId);
-  if (index === -1) {
-    throw new Error(`Room with ID ${roomId} not found`);
+  if (USE_MOCK_API) {
+    await delay(400);
+    const index = rooms.findIndex(r => r.room_id === roomId);
+    if (index === -1) {
+      throw new Error(`Room with ID ${roomId} not found`);
+    }
+    const deletedRoom = rooms[index];
+    rooms.splice(index, 1);
+    return { 
+      success: true, 
+      message: `Room "${deletedRoom.room_name}" deleted successfully`,
+      deleted: deletedRoom
+    };
   }
   
-  const deletedRoom = rooms[index];
-  rooms.splice(index, 1);
-  
-  return { 
-    success: true, 
-    message: `Room "${deletedRoom.room_name}" deleted successfully`,
-    deleted: deletedRoom
-  };
+  const response = await apiCall(`/admin/rooms/${roomId}`, {
+    method: 'DELETE',
+  });
+  return response;
 };
 
 /**
@@ -156,33 +208,37 @@ export const deleteRoom = async (roomId) => {
  * @returns {Promise<Object>} Room statistics
  */
 export const getRoomStats = async (campusId = null) => {
-  await delay();
-  
-  let filteredRooms = rooms;
-  if (campusId) {
-    filteredRooms = rooms.filter(r => r.campus_id === campusId);
+  if (USE_MOCK_API) {
+    await delay();
+    let filteredRooms = rooms;
+    if (campusId) {
+      filteredRooms = rooms.filter(r => r.campus_id === campusId);
+    }
+    return {
+      total_rooms: filteredRooms.length,
+      by_type: {
+        classroom: filteredRooms.filter(r => r.room_type === 'classroom').length,
+        lab: filteredRooms.filter(r => r.room_type === 'lab').length,
+        'lecture-hall': filteredRooms.filter(r => r.room_type === 'lecture-hall').length,
+        auditorium: filteredRooms.filter(r => r.room_type === 'auditorium').length,
+        library: filteredRooms.filter(r => r.room_type === 'library').length,
+        office: filteredRooms.filter(r => r.room_type === 'office').length
+      },
+      by_status: {
+        available: filteredRooms.filter(r => r.status === 'available').length,
+        occupied: filteredRooms.filter(r => r.status === 'occupied').length,
+        maintenance: filteredRooms.filter(r => r.status === 'maintenance').length,
+        reserved: filteredRooms.filter(r => r.status === 'reserved').length
+      },
+      total_capacity: filteredRooms.reduce((sum, r) => sum + r.capacity, 0),
+      total_occupancy: filteredRooms.reduce((sum, r) => sum + r.current_occupancy, 0),
+      avg_utilization: (filteredRooms.reduce((sum, r) => sum + (r.current_occupancy / r.capacity), 0) / filteredRooms.length * 100).toFixed(2)
+    };
   }
   
-  return {
-    total_rooms: filteredRooms.length,
-    by_type: {
-      classroom: filteredRooms.filter(r => r.room_type === 'classroom').length,
-      lab: filteredRooms.filter(r => r.room_type === 'lab').length,
-      'lecture-hall': filteredRooms.filter(r => r.room_type === 'lecture-hall').length,
-      auditorium: filteredRooms.filter(r => r.room_type === 'auditorium').length,
-      library: filteredRooms.filter(r => r.room_type === 'library').length,
-      office: filteredRooms.filter(r => r.room_type === 'office').length
-    },
-    by_status: {
-      available: filteredRooms.filter(r => r.status === 'available').length,
-      occupied: filteredRooms.filter(r => r.status === 'occupied').length,
-      maintenance: filteredRooms.filter(r => r.status === 'maintenance').length,
-      reserved: filteredRooms.filter(r => r.status === 'reserved').length
-    },
-    total_capacity: filteredRooms.reduce((sum, r) => sum + r.capacity, 0),
-    total_occupancy: filteredRooms.reduce((sum, r) => sum + r.current_occupancy, 0),
-    avg_utilization: (filteredRooms.reduce((sum, r) => sum + (r.current_occupancy / r.capacity), 0) / filteredRooms.length * 100).toFixed(2)
-  };
+  const url = campusId ? `/admin/rooms/stats?campus_id=${campusId}` : '/admin/rooms/stats';
+  const response = await apiCall(url);
+  return response.data;
 };
 
 /**
@@ -190,8 +246,13 @@ export const getRoomStats = async (campusId = null) => {
  * @returns {Promise<Array>} Array of over-capacity rooms
  */
 export const getOverCapacityRooms = async () => {
-  await delay();
-  return rooms.filter(r => r.current_occupancy > r.capacity);
+  if (USE_MOCK_API) {
+    await delay();
+    return rooms.filter(r => r.current_occupancy > r.capacity);
+  }
+  
+  const response = await apiCall('/admin/rooms/overcapacity');
+  return response.data;
 };
 
 /**
@@ -200,10 +261,15 @@ export const getOverCapacityRooms = async () => {
  * @returns {Promise<Array>} Array of underutilized rooms
  */
 export const getUnderutilizedRooms = async (threshold = 30) => {
-  await delay();
-  return rooms.filter(r => {
-    if (r.capacity === 0) return false;
-    const utilization = (r.current_occupancy / r.capacity) * 100;
-    return utilization < threshold && r.status === 'occupied';
-  });
+  if (USE_MOCK_API) {
+    await delay();
+    return rooms.filter(r => {
+      if (r.capacity === 0) return false;
+      const utilization = (r.current_occupancy / r.capacity) * 100;
+      return utilization < threshold && r.status === 'occupied';
+    });
+  }
+  
+  const response = await apiCall(`/admin/rooms/underutilized?threshold=${threshold}`);
+  return response.data;
 };

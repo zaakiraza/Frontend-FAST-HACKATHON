@@ -19,6 +19,8 @@ const AdminTickets = () => {
   });
   const [formData, setFormData] = useState({
     campus_id: '',
+    building_id: '',
+    room_id: '',
     title: '',
     description: '',
     category: 'electrical',
@@ -61,15 +63,17 @@ const AdminTickets = () => {
     if (ticket) {
       setEditingTicket(ticket);
       setFormData({
-        campus_id: ticket.campus_id,
+        campus_id: ticket.campus_id || '',
+        building_id: ticket.building_id || '',
+        room_id: ticket.room_id || '',
         title: ticket.title,
         description: ticket.description,
         category: ticket.category,
         priority: ticket.priority,
         status: ticket.status,
         location: ticket.location,
-        building: ticket.building || '',
-        room: ticket.room || '',
+        building: ticket.building_name || '',
+        room: ticket.room_number || '',
         reported_by: ticket.reported_by,
         assigned_to: ticket.assigned_to || '',
         estimated_cost: ticket.estimated_cost || ''
@@ -78,6 +82,8 @@ const AdminTickets = () => {
       setEditingTicket(null);
       setFormData({
         campus_id: '',
+        building_id: '',
+        room_id: '',
         title: '',
         description: '',
         category: 'electrical',
@@ -169,12 +175,12 @@ const AdminTickets = () => {
 
   const tableColumns = [
     { 
-      key: 'id', 
+      key: 'ticket_id', 
       label: 'TICKET ID',
       render: (value) => `#${value}`
     },
     { key: 'title', label: 'TITLE' },
-    { key: 'building', label: 'BUILDING' },
+    { key: 'building_name', label: 'BUILDING' },
     { key: 'location', label: 'LOCATION' },
     { 
       key: 'priority', 
