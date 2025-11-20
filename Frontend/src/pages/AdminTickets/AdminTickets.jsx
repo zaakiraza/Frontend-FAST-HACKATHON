@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getTickets, createTicket, updateTicket, deleteTicket, getCampuses } from '../../api/ticketApi';
+import { getTickets, createTicket, updateTicket, deleteTicket } from '../../api/ticketApi';
+import { getCampuses } from '../../api/campusApi';
+import { getBuildings } from '../../api/buildingApi';
 import { useAuth } from '../../context/AuthContext';
 import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import Modal from '../../components/Modal/Modal';
@@ -11,6 +13,7 @@ import './AdminTickets.css';
 const AdminTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [campuses, setCampuses] = useState([]);
+  const [buildings, setBuildings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingTicket, setEditingTicket] = useState(null);
@@ -45,17 +48,23 @@ const AdminTickets = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [ticketsData, campusesData] = await Promise.all([
+      const [ticketsData, campusesData, buildingsData] = await Promise.all([
         getTickets(),
-        getCampuses()
+        getCampuses(),
+        getBuildings()
       ]);
       setTickets(Array.isArray(ticketsData) ? ticketsData : []);
-      setCampuses(Array.isArray(campusesData) ? campusesData : []);
+      const campusArray = Array.isArray(campusesData) ? campusesData : (campusesData?.data || []);
+      setCampuses(campusArray);
+      const buildingArray = Array.isArray(buildingsData) ? buildingsData : (buildingsData?.data || []);
+      setBuildings(buildingArray);
+      console.log('Loaded buildings:', buildingArray);
     } catch (error) {
       console.error('Error loading tickets:', error);
       showAlert('Failed to load tickets data', 'error');
       setTickets([]);
       setCampuses([]);
+      setBuildings([]);
     } finally {
       setLoading(false);
     }
@@ -123,36 +132,48 @@ const AdminTickets = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.campus_id || !formData.title || !formData.description) {
-      showAlert('Please fill in all required fields', 'error');
+    if (!formData.title || !formData.description || !formData.priority || !formData.building_id) {
+      showAlert('Please fill in title, description, priority, and building', 'error');
       return;
     }
 
     try {
       if (editingTicket) {
-        await updateTicket(editingTicket.ticket_id, formData);
-        showAlert('Ticket updated successfully', 'success');
+        showAlert('Update functionality not available in backend', 'error');
+        return;
       } else {
-        await createTicket(formData);
+        // Get building name for backend validation
+        const selectedBuilding = buildings.find(b => 
+          (b.uid || b.id) === parseInt(formData.building_id)
+        );
+        const buildingName = selectedBuilding?.name || selectedBuilding?.building_name || 'Unknown';
+        
+        // Prepare data for backend - backend validates 'building' but uses 'building_id'
+        const ticketPayload = {
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          category: formData.category,
+          building: buildingName, // Backend validation requires this
+          building_id: parseInt(formData.building_id), // Backend model uses this
+          room_id: formData.room_id || null,
+          location: formData.location,
+          reportedBy: formData.reported_by || 'User',
+          estimatedCost: formData.estimated_cost || 0
+        };
+        
+        await createTicket(ticketPayload);
         showAlert('Ticket created successfully', 'success');
       }
       handleCloseModal();
       loadData();
     } catch (error) {
-      showAlert('Failed to save ticket', 'error');
+      showAlert(error.message || 'Failed to save ticket', 'error');
     }
   };
 
   const handleDelete = async (ticketId, ticketTitle) => {
-    if (window.confirm(`Are you sure you want to delete ticket "${ticketTitle}"?`)) {
-      try {
-        await deleteTicket(ticketId);
-        showAlert('Ticket deleted successfully', 'success');
-        loadData();
-      } catch (error) {
-        showAlert('Failed to delete ticket', 'error');
-      }
-    }
+    showAlert('Delete functionality not available in backend', 'error');
   };
 
   const handleSearch = ({ search, filters: searchFilters }) => {
@@ -209,7 +230,7 @@ const AdminTickets = () => {
     { 
       key: 'id', 
       label: 'TICKET ID',
-      render: (value) => value || '#undefined'
+      render: (value) => value || 'N/A'
     },
     { key: 'title', label: 'TITLE' },
     { key: 'building', label: 'BUILDING' },
@@ -240,12 +261,6 @@ const AdminTickets = () => {
         <div className="table-actions">
           <button className="btn-icon btn-view" onClick={() => handleOpenModal(row)} title="View Details">
             <i className="fas fa-eye"></i>
-          </button>
-          <button className="btn-icon btn-edit" onClick={() => handleOpenModal(row)} title="Edit">
-            <i className="fas fa-edit"></i>
-          </button>
-          <button className="btn-icon btn-delete" onClick={() => handleDelete(row.id, row.title)} title="Delete">
-            <i className="fas fa-trash"></i>
           </button>
         </div>
       )
@@ -385,26 +400,8 @@ const AdminTickets = () => {
         />
       </div>
 
-      <Modal isOpen={showModal} onClose={handleCloseModal} title={editingTicket ? 'Edit Ticket' : 'Create New Ticket'}>
+      <Modal isOpen={showModal} onClose={handleCloseModal} title={editingTicket ? 'View Ticket' : 'Create New Ticket'}>
         <form onSubmit={handleSubmit} className="ticket-form">
-          <div className="form-group">
-            <label htmlFor="campus_id">Campus *</label>
-            <select
-              id="campus_id"
-              name="campus_id"
-              value={formData.campus_id}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Campus</option>
-              {campuses.map(campus => (
-                <option key={campus.campus_id} value={campus.campus_id}>
-                  {campus.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="form-group">
             <label htmlFor="title">Title *</label>
             <input
@@ -415,6 +412,7 @@ const AdminTickets = () => {
               onChange={handleInputChange}
               placeholder="Brief description of the issue"
               required
+              disabled={editingTicket}
             />
           </div>
 
@@ -428,6 +426,7 @@ const AdminTickets = () => {
               placeholder="Detailed description of the maintenance issue"
               rows="4"
               required
+              disabled={editingTicket}
             />
           </div>
 
@@ -439,6 +438,7 @@ const AdminTickets = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
+                disabled={editingTicket}
               >
                 <option value="electrical">Electrical</option>
                 <option value="plumbing">Plumbing</option>
@@ -452,12 +452,14 @@ const AdminTickets = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="priority">Priority</label>
+              <label htmlFor="priority">Priority *</label>
               <select
                 id="priority"
                 name="priority"
                 value={formData.priority}
                 onChange={handleInputChange}
+                required
+                disabled={editingTicket}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -469,69 +471,34 @@ const AdminTickets = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="status">Status</label>
+              <label htmlFor="building_id">Building *</label>
               <select
-                id="status"
-                name="status"
-                value={formData.status}
+                id="building_id"
+                name="building_id"
+                value={formData.building_id}
                 onChange={handleInputChange}
+                required
+                disabled={editingTicket}
               >
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
+                <option value="">Select Building</option>
+                {Array.isArray(buildings) && buildings.map(building => (
+                  <option key={building.uid || building.id} value={building.uid || building.id}>
+                    {building.name || building.building_name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label htmlFor="estimated_cost">Estimated Cost ($)</label>
-              <input
-                type="number"
-                id="estimated_cost"
-                name="estimated_cost"
-                value={formData.estimated_cost}
-                onChange={handleInputChange}
-                placeholder="0"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="location">Location</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="e.g., Building A, 3rd Floor"
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="building">Building</label>
+              <label htmlFor="location">Location</label>
               <input
                 type="text"
-                id="building"
-                name="building"
-                value={formData.building}
+                id="location"
+                name="location"
+                value={formData.location}
                 onChange={handleInputChange}
-                placeholder="Building A"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="room">Room</label>
-              <input
-                type="text"
-                id="room"
-                name="room"
-                value={formData.room}
-                onChange={handleInputChange}
-                placeholder="Room 301"
+                placeholder="e.g., Floor 3, Room 301"
+                disabled={editingTicket}
               />
             </div>
           </div>
@@ -546,29 +513,61 @@ const AdminTickets = () => {
                 value={formData.reported_by}
                 onChange={handleInputChange}
                 placeholder="Name or ID"
+                disabled={editingTicket}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="assigned_to">Assigned To</label>
+              <label htmlFor="estimated_cost">Estimated Cost ($)</label>
               <input
-                type="text"
-                id="assigned_to"
-                name="assigned_to"
-                value={formData.assigned_to}
+                type="number"
+                id="estimated_cost"
+                name="estimated_cost"
+                value={formData.estimated_cost}
                 onChange={handleInputChange}
-                placeholder="Technician name"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                disabled={editingTicket}
               />
             </div>
           </div>
 
+          {editingTicket && (
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="status">Status</label>
+                <input
+                  type="text"
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  disabled
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="assigned_to">Assigned To</label>
+                <input
+                  type="text"
+                  id="assigned_to"
+                  name="assigned_to"
+                  value={formData.assigned_to}
+                  disabled
+                />
+              </div>
+            </div>
+          )}
+
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={handleCloseModal}>
-              Cancel
+              {editingTicket ? 'Close' : 'Cancel'}
             </button>
-            <button type="submit" className="btn-primary">
-              {editingTicket ? 'Update Ticket' : 'Create Ticket'}
-            </button>
+            {!editingTicket && (
+              <button type="submit" className="btn-primary">
+                Create Ticket
+              </button>
+            )}
           </div>
         </form>
       </Modal>

@@ -3,6 +3,7 @@ import { getBuildings, createBuilding, updateBuilding, deleteBuilding, getCampus
 import Modal from '../../components/Modal/Modal';
 import Alert from '../../components/Alert/Alert';
 import SimpleTable from '../../components/Tables/SimpleTable';
+import PermissionGate from '../../components/PermissionGate/PermissionGate';
 import './AdminBuildings.css';
 
 const AdminBuildings = () => {

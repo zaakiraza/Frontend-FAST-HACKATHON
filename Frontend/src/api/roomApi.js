@@ -75,13 +75,14 @@ export const getBuildings = async (campusId = null) => {
 export const createRoom = async (roomData) => {
   // Map frontend field names to backend expected names
   const payload = {
-    roomNumber: roomData.room_number,
-    name: roomData.room_name,
-    building_uid: roomData.building_id, // Backend model uses building_uid
-    type: roomData.room_type,
+    roomNumber: roomData.room_number || roomData.roomNumber,
+    name: roomData.room_name || roomData.name,
+    buildingId: roomData.building_id || roomData.building_uid, // Controller expects buildingId
+    building_uid: roomData.building_id || roomData.building_uid, // Model expects building_uid
+    type: roomData.room_type || roomData.type,
     floor: roomData.floor,
     capacity: roomData.capacity,
-    currentOccupancy: roomData.current_occupancy,
+    currentOccupancy: roomData.current_occupancy || roomData.currentOccupancy,
     status: roomData.status
   };
   
@@ -95,13 +96,14 @@ export const createRoom = async (roomData) => {
 export const updateRoom = async (roomId, roomData) => {
   // Map frontend field names to backend expected names
   const payload = {
-    roomNumber: roomData.room_number,
-    name: roomData.room_name,
-    building_uid: roomData.building_id, // Backend model uses building_uid
-    type: roomData.room_type,
+    roomNumber: roomData.room_number || roomData.roomNumber,
+    name: roomData.room_name || roomData.name,
+    buildingId: roomData.building_id || roomData.building_uid, // Controller expects buildingId
+    building_uid: roomData.building_id || roomData.building_uid, // Model expects building_uid
+    type: roomData.room_type || roomData.type,
     floor: roomData.floor,
     capacity: roomData.capacity,
-    currentOccupancy: roomData.current_occupancy,
+    currentOccupancy: roomData.current_occupancy || roomData.currentOccupancy,
     status: roomData.status
   };
   

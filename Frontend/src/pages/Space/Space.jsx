@@ -61,6 +61,9 @@ const Space = () => {
       console.log('Occupancy data:', data);
       console.log('First item:', data[0]);
       
+      // Ensure data is an array
+      const occupancyData = Array.isArray(data) ? data : [];
+      
       // Transform occupancy data to add calculated status
       const transformedData = occupancyData.map(room => {
         const percentage = room.percentage || 0;
@@ -83,17 +86,11 @@ const Space = () => {
       });
       
       setAllOccupancyData(transformedData);
-      setHeatmap(heatmapData);
-      setSuggestions(suggestionsData);
+      setOccupancy(transformedData); // Set initial occupancy data
     } catch (error) {
-      console.error('Error loading space data:', error);
-      // Set default values to prevent crashes
-      setSummary({ totalRooms: 0, occupied: 0, available: 0, overCapacity: 0 });
+      console.error('Error loading occupancy data:', error);
       setAllOccupancyData([]);
-      setHeatmap([]);
-      setSuggestions([]);
-    } finally {
-      setLoading(false);
+      setOccupancy([]);
     }
   };
 

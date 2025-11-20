@@ -1,8 +1,10 @@
-import { NavLink,useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { user, hasPermission, hasAnyPermission, isSuperAdmin } = useAuth();
 
   const menuItems = [
     { 
@@ -92,18 +94,13 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   // Check if user has access to a menu item
   const hasAccess = (item) => {
-    // While loading, show all items to prevent flicker
-    if (loading) return true;
-
     // Super admin has access to everything
     if (isSuperAdmin && isSuperAdmin()) {
-      console.log(`${item.label}: SUPER ADMIN - GRANTED`);
       return true;
     }
 
     // Disabled items are never shown
     if (item.enabled === false) {
-      console.log(`${item.label}: DISABLED`);
       return false;
     }
 
@@ -114,26 +111,22 @@ const Sidebar = ({ isOpen, onClose }) => {
         mi.path && mi.path.startsWith('/admin') && mi.enabled
       );
       const hasAdminAccess = adminItems.some(ai => hasAccess(ai));
-      console.log(`${item.label} (Section): ${hasAdminAccess ? 'GRANTED' : 'DENIED'}`);
       return hasAdminAccess;
     }
 
     // Check single permission
     if (item.permission) {
       const granted = hasPermission && hasPermission(item.permission);
-      console.log(`${item.label}: Permission '${item.permission}' - ${granted ? 'GRANTED' : 'DENIED'}`);
       return granted;
     }
 
     // Check multiple permissions (user needs at least one)
     if (item.permissions && item.permissions.length > 0) {
       const granted = hasAnyPermission && hasAnyPermission(item.permissions);
-      console.log(`${item.label}: Permissions ${JSON.stringify(item.permissions)} - ${granted ? 'GRANTED' : 'DENIED'}`);
       return granted;
     }
 
     // No permission required
-    console.log(`${item.label}: No permission required - GRANTED`);
     return true;
   };
 
